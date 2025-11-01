@@ -1,3 +1,14 @@
 spring:
   application:
     name: CEI Digital
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/cei_db}
+    username: ${SPRING_DATASOURCE_USERNAME:ceiuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:ceipass}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
