@@ -26,3 +26,12 @@ spring:
   web:
     locale: pt_BR # fallback padrão
     locale-resolver: accept-header # usa o cabeçalho Accept-Language do cliente
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

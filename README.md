@@ -102,6 +102,9 @@ Você pode sobrescrever via variáveis de ambiente padrão do Spring:
 
 ## URLs úteis
 - API: http://localhost:8080/
+- Actuator (monitoramento):
+  - Health: http://localhost:8080/actuator/health
+  - Info: http://localhost:8080/actuator/info
 - pgAdmin: http://localhost:5050
 - JDBC (aplicação): `jdbc:postgresql://localhost:5432/cei_db`
 - Conexão cliente: `postgresql://ceiuser:ceipass@localhost:5432/cei_db`
