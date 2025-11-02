@@ -1,6 +1,11 @@
 HELP.md
+.vscode/
+
+# Maven build outputs
 target/
+backend/target/
 .mvn/wrapper/maven-wrapper.jar
+backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -29,8 +34,9 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
-.vscode/
+### Frontend (Angular) ###
+frontend/node_modules/
+frontend/dist/
 
 ### OS & editor files ###
 .DS_Store

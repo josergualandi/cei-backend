@@ -1,7 +1,11 @@
 # CEI Digital — Cadastro Empresarial Integrado (PT-BR)
 
-Este projeto é uma API Spring Boot (Java 21) com PostgreSQL para cadastro de empresas.
-Inclui uma interface web para o banco via pgAdmin (Docker), validação de dados e uma coleção do Insomnia para testes.
+Este repositório agora está organizado em dois projetos separados:
+
+- `backend/` — API Spring Boot (Java 21) com PostgreSQL, autenticação JWT e DTOs
+- `frontend/` — Aplicação Angular (SPA) que consome a API
+
+Também incluímos uma interface web do Postgres via pgAdmin (Docker) e uma coleção do Insomnia para testes.
 
 ## Tecnologias
 - Java 21, Spring Boot 3
@@ -46,19 +50,31 @@ docker compose up -d db pgadmin
 Dica: como pgAdmin e Postgres estão no mesmo docker-compose, use o host `db` (nome do serviço). Para clientes externos (DBeaver, etc.), use `localhost`.
 
 ## Como rodar a aplicação
+
+### Backend (Spring Boot)
 - Via Maven (recomendado durante o desenvolvimento):
 ```powershell
-cd "C:\\Users\\José Gualandi\\cei-digital"
+cd "C:\\Users\\José Gualandi\\cei-digital\\backend"
 .\mvnw.cmd spring-boot:run
 ```
 
 - Ou compilando e executando o JAR:
 ```powershell
+cd "C:\\Users\\José Gualandi\\cei-digital\\backend"
 .\mvnw.cmd -DskipTests clean package
 java -jar target\\cei-digital-0.0.1-SNAPSHOT.jar
 ```
 
-A aplicação sobe em: http://localhost:8080/
+O backend sobe em: http://localhost:8081/
+
+### Frontend (Angular)
+```powershell
+cd "C:\\Users\\José Gualandi\\cei-digital\\frontend"
+npm install
+npm start
+```
+
+O frontend sobe em: http://localhost:4200/
 
 ## Testar a API
 - Endpoints principais (JSON):
@@ -78,10 +94,10 @@ A aplicação sobe em: http://localhost:8080/
   - 400 quando há erro de validação (campos obrigatórios, CNPJ deve ter 14 dígitos)
   - 409 quando o CNPJ já existir (conflito de integridade)
 
-- Insomnia: use o arquivo `insomnia-empresas.json` (coleção pronta com requests e variável `base_url`).
+- Insomnia: use o arquivo `insomnia-empresas.json` (coleção pronta; o login preenche o token automaticamente para as demais requisições).
 
 ## Configurações de ambiente
-- `src/main/resources/application.yaml` já vem configurado para usar Postgres local via Docker:
+- `backend/src/main/resources/application.yaml` já vem configurado para usar Postgres local via Docker:
   - URL: `jdbc:postgresql://localhost:5432/cei_db`
   - Usuário: `ceiuser`
   - Senha: `ceipass`
@@ -101,7 +117,7 @@ Você pode sobrescrever via variáveis de ambiente padrão do Spring:
   - Pare a aplicação que está rodando antes de empacotar: encerre o processo Java e rode o `mvnw` novamente.
 
 ## URLs úteis
-- API: http://localhost:8080/
+- API (backend): http://localhost:8081/
 - pgAdmin: http://localhost:5050
 - JDBC (aplicação): `jdbc:postgresql://localhost:5432/cei_db`
 - Conexão cliente: `postgresql://ceiuser:ceipass@localhost:5432/cei_db`

@@ -8,7 +8,7 @@
       "_id": "wrk_cei_digital",
       "_type": "workspace",
       "name": "CEI Digital API",
-      "description": "Local dev: http://localhost:8080"
+      "description": "Local dev: http://localhost:8081"
     },
     {
       "_id": "env_cei_base",
@@ -16,7 +16,31 @@
       "parentId": "wrk_cei_digital",
       "name": "Base Environment",
       "data": {
-        "base_url": "http://localhost:8080"
+        "base_url": "http://localhost:8081",
+        "token": "{{ response 'req_auth_login', 'body', 'json', '$.accessToken' }}"
+      }
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_cei_digital",
+      "name": "Auth",
+      "description": "Authentication endpoints"
+    },
+    {
+      "_id": "req_auth_login",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@contoso.dev\",\n  \"senha\": \"Admin!234\"\n}"
       }
     },
     {
@@ -34,7 +58,8 @@
       "method": "GET",
       "url": "{{ _.base_url }}/api/empresas",
       "headers": [
-        { "name": "Accept", "value": "application/json" }
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
       ],
       "body": {}
     },
@@ -47,7 +72,8 @@
       "url": "{{ _.base_url }}/api/empresas",
       "headers": [
         { "name": "Content-Type", "value": "application/json" },
-        { "name": "Accept", "value": "application/json" }
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
       ],
       "body": {
         "mimeType": "application/json",
@@ -62,7 +88,8 @@
       "method": "GET",
       "url": "{{ _.base_url }}/api/empresas/1",
       "headers": [
-        { "name": "Accept", "value": "application/json" }
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
       ]
     },
     {
@@ -76,7 +103,8 @@
         { "name": "cnpj", "value": "12345678000100" }
       ],
       "headers": [
-        { "name": "Accept", "value": "application/json" }
+        { "name": "Accept", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
       ]
     },
     {
@@ -85,7 +113,10 @@
       "parentId": "fld_empresas",
       "name": "Delete Empresa (ID=1)",
       "method": "DELETE",
-      "url": "{{ _.base_url }}/api/empresas/1"
+      "url": "{{ _.base_url }}/api/empresas/1",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.token }}" }
+      ]
     }
   ]
 }

@@ -27,6 +27,10 @@ spring:
     locale: pt_BR # fallback padrão
     locale-resolver: accept-header # usa o cabeçalho Accept-Language do cliente
 
+server:
+  # Porta padrão para desenvolvimento. Pode ser sobrescrita por variável de ambiente SERVER_PORT
+  port: ${SERVER_PORT:8081}
+
 security:
   jwt:
     # Chave secreta para assinar tokens JWT (mínimo ~32 bytes para HS256)

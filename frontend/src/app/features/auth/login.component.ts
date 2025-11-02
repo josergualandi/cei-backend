@@ -13,10 +13,10 @@ import { AuthService } from '../../core/auth.service';
     <h2>Entrar</h2>
     <form (ngSubmit)="onSubmit()" #f="ngForm">
       <label>Email</label>
-      <input name="email" [(ngModel)]="email" type="email" required />
+      <input name="email" [(ngModel)]="email" type="email" required autocomplete="username" />
       <label>Senha</label>
-      <input name="senha" [(ngModel)]="senha" type="password" required />
-      <button type="submit" [disabled]="f.invalid || loading">Entrar</button>
+      <input name="senha" [(ngModel)]="senha" type="password" required autocomplete="current-password" />
+      <button type="submit" [disabled]="f.invalid || loading">{{ loading ? 'Entrando...' : 'Entrar' }}</button>
       <div class="error" *ngIf="error">{{error}}</div>
     </form>
   </div>
@@ -41,9 +41,23 @@ export class LoginComponent {
   onSubmit() {
     this.loading = true;
     this.error = null;
-    this.auth.login({ email: this.email, senha: this.senha }).subscribe({
+    const email = (this.email || '').trim();
+    const senha = this.senha || '';
+    this.auth.login({ email, senha }).subscribe({
       next: () => this.router.navigateByUrl('/empresas'),
-      error: () => { this.error = 'Credenciais inválidas'; this.loading = false; }
+      error: (err) => {
+        // Mensagens mais específicas conforme o status
+        if (err?.status === 401) {
+          this.error = 'E-mail ou senha incorretos.';
+        } else if (err?.status === 0) {
+          this.error = 'Não foi possível conectar ao servidor. Verifique se a API (8081) está em execução.';
+        } else if (err?.error?.detail) {
+          this.error = err.error.detail;
+        } else {
+          this.error = 'Falha ao entrar. Tente novamente.';
+        }
+        this.loading = false;
+      }
     });
   }
 }

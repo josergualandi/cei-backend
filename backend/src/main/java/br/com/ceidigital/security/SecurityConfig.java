@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -39,7 +40,8 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .cors(cors -> {})
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/", "/index.html", "/auth/login").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .anyRequest().authenticated()
@@ -96,16 +98,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowCredentials(true);
-        cfg.addAllowedOriginPattern("http://localhost:4200");
-        cfg.addAllowedHeader("Authorization");
-        cfg.addAllowedHeader("Content-Type");
-        cfg.addAllowedHeader("Accept");
-        cfg.addAllowedMethod("GET");
-        cfg.addAllowedMethod("POST");
-        cfg.addAllowedMethod("PUT");
-        cfg.addAllowedMethod("DELETE");
-        cfg.addAllowedMethod("OPTIONS");
+    cfg.setAllowCredentials(true);
+    // Permitir dev server acessando como localhost ou 127.0.0.1 (lista explícita de origins)
+    cfg.setAllowedOrigins(java.util.List.of("http://localhost:4200", "http://127.0.0.1:4200"));
+        // Permitir todos os headers comuns (Angular pode enviar headers adicionais)
+        cfg.addAllowedHeader("*");
+        // Métodos permitidos
+        cfg.addAllowedMethod("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
