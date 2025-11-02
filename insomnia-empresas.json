@@ -1,0 +1,91 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-11-02T12:00:00Z",
+  "__export_source": "cei-digital-setup",
+  "resources": [
+    {
+      "_id": "wrk_cei_digital",
+      "_type": "workspace",
+      "name": "CEI Digital API",
+      "description": "Local dev: http://localhost:8080"
+    },
+    {
+      "_id": "env_cei_base",
+      "_type": "environment",
+      "parentId": "wrk_cei_digital",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080"
+      }
+    },
+    {
+      "_id": "fld_empresas",
+      "_type": "request_group",
+      "parentId": "wrk_cei_digital",
+      "name": "Empresas",
+      "description": "CRUD endpoints for Empresa"
+    },
+    {
+      "_id": "req_emp_list",
+      "_type": "request",
+      "parentId": "fld_empresas",
+      "name": "List Empresas",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/empresas",
+      "headers": [
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_emp_create",
+      "_type": "request",
+      "parentId": "fld_empresas",
+      "name": "Create Empresa",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/empresas",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Accept", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"ACME Ltda\",\n  \"cnpj\": \"12.345.678/0001-00\"\n}"
+      }
+    },
+    {
+      "_id": "req_emp_get",
+      "_type": "request",
+      "parentId": "fld_empresas",
+      "name": "Get Empresa by ID",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/empresas/1",
+      "headers": [
+        { "name": "Accept", "value": "application/json" }
+      ]
+    },
+    {
+      "_id": "req_emp_search",
+      "_type": "request",
+      "parentId": "fld_empresas",
+      "name": "Search by CNPJ (digits)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/empresas/search",
+      "parameters": [
+        { "name": "cnpj", "value": "12345678000100" }
+      ],
+      "headers": [
+        { "name": "Accept", "value": "application/json" }
+      ]
+    },
+    {
+      "_id": "req_emp_delete",
+      "_type": "request",
+      "parentId": "fld_empresas",
+      "name": "Delete Empresa (ID=1)",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/api/empresas/1"
+    }
+  ]
+}

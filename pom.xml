@@ -35,7 +35,7 @@
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
-		<!-- Add web starter so the application runs an embedded web server (Tomcat) -->
+		<!-- Web starter for embedded Tomcat and MVC -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -53,10 +53,11 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Add web starter so the embedded web server (Tomcat) is started -->
+
+		<!-- Validation annotations support (jakarta.validation) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
+			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
 		<dependency>
