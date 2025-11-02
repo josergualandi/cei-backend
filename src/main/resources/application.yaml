@@ -27,11 +27,9 @@ spring:
     locale: pt_BR # fallback padrão
     locale-resolver: accept-header # usa o cabeçalho Accept-Language do cliente
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-  endpoint:
-    health:
-      show-details: always
+security:
+  jwt:
+    # Chave secreta para assinar tokens JWT (mínimo ~32 bytes para HS256)
+    secret: ${JWT_SECRET:change-this-secret-to-a-long-and-secure-value-32b-min}
+    # Validade do token em segundos (ex.: 3600 = 1 hora)
+    expiration: ${JWT_EXPIRATION:3600}
