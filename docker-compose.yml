@@ -3,13 +3,28 @@ services:
     image: postgres:15
     restart: unless-stopped
     environment:
-      POSTGRES_DB: cei_db
-      POSTGRES_USER: ceiuser
-      POSTGRES_PASSWORD: ceipass
+      POSTGRES_DB: ${POSTGRES_DB:-cei_db}
+      POSTGRES_USER: ${POSTGRES_USER:-ceiuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ceipass}
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@cei.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT:-5050}
+    ports:
+      - "${PGADMIN_LISTEN_PORT:-5050}:${PGADMIN_LISTEN_PORT:-5050}"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
 volumes:
   db_data:
+  pgadmin_data:
