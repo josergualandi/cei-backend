@@ -48,8 +48,9 @@ public class EmpresaController {
      */
     @GetMapping("/search")
     public ResponseEntity<Empresa> byCnpj(@RequestParam String cnpj) {
-        // Normaliza o CNPJ removendo caracteres que não são dígitos
-        Optional<Empresa> opt = repository.findByCnpj(cnpj.replaceAll("[^0-9]", ""));
+        // Normaliza o CNPJ e busca como (tipo_pessoa='CNPJ', numero_documento)
+        String digits = cnpj.replaceAll("[^0-9]", "");
+        Optional<Empresa> opt = repository.findByTipoPessoaAndNumeroDocumento("CNPJ", digits);
         return opt.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -60,11 +61,27 @@ public class EmpresaController {
      */
     @PostMapping
     public ResponseEntity<Empresa> create(@Valid @RequestBody Empresa body) {
-        if (body.getNome() == null || body.getNome().isBlank() || body.getCnpj() == null || body.getCnpj().isBlank()) {
+        // Compat: se vier "cnpj" no payload, setamos tipoPessoa=CNPJ e numeroDocumento normalizado
+        if (body.getCnpj() != null && !body.getCnpj().isBlank()) {
+            body.setCnpj(body.getCnpj()); // setter já normaliza e define tipoPessoa
+        }
+        // Regras mínimas: tipoPessoa, numeroDocumento e nomeRazaoSocial
+        if (body.getTipoPessoa() == null || body.getTipoPessoa().isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+        if (body.getNumeroDocumento() == null || body.getNumeroDocumento().isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        if (body.getNomeRazaoSocial() == null || body.getNomeRazaoSocial().isBlank()) {
+            // tenta usar alias "nome" se presente
+            if (body.getNome() != null && !body.getNome().isBlank()) {
+                body.setNomeRazaoSocial(body.getNome());
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+        }
         body.setId(null);
-    Empresa saved = repository.save(body);
+        Empresa saved = repository.save(body);
     // Monta a URI do novo recurso: /api/empresas/{id}
     var location = ServletUriComponentsBuilder.fromCurrentRequest()
         .path("/{id}")

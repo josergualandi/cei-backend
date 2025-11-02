@@ -11,9 +11,7 @@ import java.util.Optional;
  */
 public interface EmpresaRepository extends JpaRepository<Empresa, Long> {
     /**
-     * Busca uma empresa pelo CNPJ normalizado (apenas dígitos).
-     * @param cnpj CNPJ contendo somente números
-     * @return {@link Optional} com a empresa encontrada, se existir
+     * Busca por documento (normalizado) e tipo (ex.: CNPJ).
      */
-    Optional<Empresa> findByCnpj(String cnpj);
+    Optional<Empresa> findByTipoPessoaAndNumeroDocumento(String tipoPessoa, String numeroDocumento);
 }
