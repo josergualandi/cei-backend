@@ -33,3 +33,9 @@ security:
     secret: ${JWT_SECRET:change-this-secret-to-a-long-and-secure-value-32b-min}
     # Validade do token em segundos (ex.: 3600 = 1 hora)
     expiration: ${JWT_EXPIRATION:3600}
+
+# Parâmetros do usuário administrador inicial (apenas para desenvolvimento)
+app:
+  admin:
+    email: ${APP_ADMIN_EMAIL:admin@contoso.dev}
+    password: ${APP_ADMIN_PASSWORD:Admin!234}
