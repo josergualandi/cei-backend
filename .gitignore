@@ -48,6 +48,7 @@ logs/
 ### Environment / secrets (don't commit secrets) ###
 .env
 .env.*
+!.env.example  # permitir versionar um arquivo de exemplo
 local.properties
 secrets.properties
 
