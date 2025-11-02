@@ -67,3 +67,12 @@ secrets.properties
 ### Keystores ###
 *.jks
 *.keystore
+
+# Local runtime artifacts
+app.pid
+app.out.log
+app.err.log
+app.log
+
+# Old target backups created during builds
+target_old_*/

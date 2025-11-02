@@ -12,14 +12,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Mapeia exceções comuns para respostas HTTP padronizadas (RFC 7807 - ProblemDetail).
+ * Centraliza tratamento de erros de validação (400) e conflito de integridade (409).
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Trata erros de validação de bean (@Valid), retornando 400 e os campos inválidos.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setTitle("Validation failed");
+        // Monta um mapa campo -> mensagem de erro
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         fe -> fe.getField(),
@@ -29,13 +37,16 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    /**
+     * Trata violações de integridade do banco (ex.: CNPJ duplicado), retornando 409.
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ProblemDetail handleConflict(DataIntegrityViolationException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         pd.setTitle("Conflict");
         String msg = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
-        // Friendly message for unique CNPJ constraint
+        // Mensagem amigável quando a restrição única de CNPJ é violada
         if (msg != null && msg.toLowerCase().contains("cnpj")) {
             pd.setDetail("CNPJ já existente");
         } else {
