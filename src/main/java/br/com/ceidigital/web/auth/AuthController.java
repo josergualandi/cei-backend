@@ -1,7 +1,7 @@
 package br.com.ceidigital.web.auth;
 
-import br.com.ceidigital.repository.UsuarioRepository;
 import br.com.ceidigital.security.JwtService;
+import br.com.ceidigital.service.UsuarioService;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
@@ -19,12 +19,12 @@ public class AuthController {
 
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
 
-    public AuthController(AuthenticationManager authManager, JwtService jwtService, UsuarioRepository usuarioRepository) {
+    public AuthController(AuthenticationManager authManager, JwtService jwtService, UsuarioService usuarioService) {
         this.authManager = authManager;
         this.jwtService = jwtService;
-        this.usuarioRepository = usuarioRepository;
+        this.usuarioService = usuarioService;
     }
 
     /**
@@ -41,8 +41,8 @@ public class AuthController {
         long expiresIn = jwtService.extractExpiration(token).getTime() / 1000 - System.currentTimeMillis() / 1000;
 
         // Retornar roles do usuário (perfis)
-        var usuario = usuarioRepository.findByEmail(email).orElseThrow();
-        Set<String> roles = usuario.getPerfis().stream().map(p -> p.getNome()).collect(Collectors.toSet());
+    var usuarioDto = usuarioService.buscarPorEmail(email).orElseThrow();
+    Set<String> roles = usuarioDto.perfis().stream().map(p -> p.nome()).collect(Collectors.toSet());
 
         return ResponseEntity.ok(new LoginResponse("Bearer", token, expiresIn, roles));
     }

@@ -1,15 +1,14 @@
 package br.com.ceidigital.web;
 
-import br.com.ceidigital.domain.Empresa;
-import br.com.ceidigital.repository.EmpresaRepository;
-import org.springframework.http.HttpStatus;
+import br.com.ceidigital.service.EmpresaService;
+import br.com.ceidigital.web.dto.request.EmpresaCreateDto;
+import br.com.ceidigital.web.dto.response.EmpresaDto;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Controlador REST para recursos de Empresa.
@@ -19,39 +18,34 @@ import java.util.Optional;
 @RequestMapping("/api/empresas")
 public class EmpresaController {
 
-    private final EmpresaRepository repository;
+    private final EmpresaService service;
 
-    public EmpresaController(EmpresaRepository repository) {
-        this.repository = repository;
+    public EmpresaController(EmpresaService service) {
+        this.service = service;
     }
 
     /**
      * Lista todas as empresas.
      */
     @GetMapping
-    public List<Empresa> list() {
-        return repository.findAll();
+    public List<EmpresaDto> list() {
+        return service.listar();
     }
 
     /**
      * Busca uma empresa por id.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Empresa> get(@PathVariable long id) {
-        return repository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<EmpresaDto> get(@PathVariable long id) {
+        return service.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     /**
      * Busca uma empresa pelo CNPJ informado (aceita com ou sem máscara).
      */
     @GetMapping("/search")
-    public ResponseEntity<Empresa> byCnpj(@RequestParam String cnpj) {
-        // Normaliza o CNPJ e busca como (tipo_pessoa='CNPJ', numero_documento)
-        String digits = cnpj.replaceAll("[^0-9]", "");
-        Optional<Empresa> opt = repository.findByTipoPessoaAndNumeroDocumento("CNPJ", digits);
-        return opt.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<EmpresaDto> byCnpj(@RequestParam String cnpj) {
+        return service.buscarPorCnpj(cnpj).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -60,34 +54,14 @@ public class EmpresaController {
      * Retorna 201 Created com cabeçalho Location apontando para o recurso criado.
      */
     @PostMapping
-    public ResponseEntity<Empresa> create(@Valid @RequestBody Empresa body) {
-        // Compat: se vier "cnpj" no payload, setamos tipoPessoa=CNPJ e numeroDocumento normalizado
-        if (body.getCnpj() != null && !body.getCnpj().isBlank()) {
-            body.setCnpj(body.getCnpj()); // setter já normaliza e define tipoPessoa
-        }
-        // Regras mínimas: tipoPessoa, numeroDocumento e nomeRazaoSocial
-        if (body.getTipoPessoa() == null || body.getTipoPessoa().isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        if (body.getNumeroDocumento() == null || body.getNumeroDocumento().isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        if (body.getNomeRazaoSocial() == null || body.getNomeRazaoSocial().isBlank()) {
-            // tenta usar alias "nome" se presente
-            if (body.getNome() != null && !body.getNome().isBlank()) {
-                body.setNomeRazaoSocial(body.getNome());
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-        }
-        body.setId(null);
-        Empresa saved = repository.save(body);
-    // Monta a URI do novo recurso: /api/empresas/{id}
-    var location = ServletUriComponentsBuilder.fromCurrentRequest()
-        .path("/{id}")
-        .buildAndExpand(saved.getId())
-        .toUri();
-    return ResponseEntity.created(location).body(saved);
+    public ResponseEntity<EmpresaDto> create(@Valid @RequestBody EmpresaCreateDto payload) {
+        EmpresaDto created = service.criar(payload);
+        // Monta a URI do novo recurso: /api/empresas/{id}
+        var location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.id())
+                .toUri();
+        return ResponseEntity.created(location).body(created);
     }
 
     /**
@@ -95,8 +69,7 @@ public class EmpresaController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable long id) {
-        if (!repository.existsById(id)) return ResponseEntity.notFound().build();
-        repository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        boolean removed = service.excluirPorId(id);
+        return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 }

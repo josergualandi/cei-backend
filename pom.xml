@@ -30,6 +30,14 @@
 		<java.version>21</java.version>
 	</properties>
 	<dependencies>
+		<!-- Lombok para reduzir boilerplate de getters/setters/constructors -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.32</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Mantemos uma única declaração do Lombok -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
