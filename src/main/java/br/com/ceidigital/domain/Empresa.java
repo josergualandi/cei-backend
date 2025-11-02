@@ -20,12 +20,12 @@ public class Empresa {
     // Identificador único da empresa (chave primária)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "{empresa.nome.notblank}")
     @Column(nullable = false)
     // Nome fantasia ou razão social da empresa
     private String nome;
 
-    @NotBlank
+    @NotBlank(message = "{empresa.cnpj.notblank}")
     @Column(nullable = false, unique = true, length = 18)
     // CNPJ da empresa. Persistimos apenas dígitos (14), mas permitimos entrada com máscara.
     private String cnpj;
@@ -57,7 +57,7 @@ public class Empresa {
      * Valida o CNPJ após normalização: deve conter exatamente 14 dígitos.
      * Observação: esta validação é apenas de tamanho, não verifica dígitos verificadores.
      */
-    @AssertTrue(message = "CNPJ deve conter 14 dígitos")
+    @AssertTrue(message = "{empresa.cnpj.invalido}")
     private boolean isCnpjValido() {
         if (cnpj == null) return false;
         String digits = cnpj.replaceAll("\\D", "");

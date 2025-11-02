@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 /**
  * Mapeia exceções comuns para respostas HTTP padronizadas (RFC 7807 - ProblemDetail).
@@ -19,6 +21,12 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private final MessageSource messageSource;
+
+    public GlobalExceptionHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
+    }
+
     /**
      * Trata erros de validação de bean (@Valid), retornando 400 e os campos inválidos.
      */
@@ -26,7 +34,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-        pd.setTitle("Validation failed");
+        var locale = LocaleContextHolder.getLocale();
+        pd.setTitle(messageSource.getMessage("validation.failed", null, locale));
         // Monta um mapa campo -> mensagem de erro
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
@@ -44,13 +53,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ProblemDetail handleConflict(DataIntegrityViolationException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
-        pd.setTitle("Conflict");
+        var locale = LocaleContextHolder.getLocale();
+        pd.setTitle(messageSource.getMessage("conflict", null, locale));
         String msg = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
         // Mensagem amigável quando a restrição única de CNPJ é violada
         if (msg != null && msg.toLowerCase().contains("cnpj")) {
-            pd.setDetail("CNPJ já existente");
+            pd.setDetail(messageSource.getMessage("cnpj.duplicado", null, locale));
         } else {
-            pd.setDetail("Violação de integridade");
+            pd.setDetail(messageSource.getMessage("integrity.violation", null, locale));
         }
         return pd;
     }

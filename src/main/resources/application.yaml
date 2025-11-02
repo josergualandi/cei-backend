@@ -18,3 +18,11 @@ spring:
       # Em produção, considere usar 'validate' e gerenciar migrações com Flyway/Liquibase
       ddl-auto: update
     show-sql: true
+
+  # Internacionalização e localização
+  messages:
+    basename: messages
+    encoding: UTF-8
+  web:
+    locale: pt_BR
+    locale-resolver: fixed
