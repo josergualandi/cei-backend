@@ -1,0 +1,19 @@
+{
+  "folders": [
+    { "path": "C:\\Users\\José Gualandi\\cei-backend-split" }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/target": true
+    },
+    "java.configuration.updateBuildConfiguration": "interactive"
+  },
+  "extensions": {
+    "recommendations": [
+      "vscjava.vscode-java-pack",
+      "vmware.vscode-spring-boot",
+      "redhat.vscode-xml",
+      "github.vscode-github-actions"
+    ]
+  }
+}
