@@ -65,6 +65,16 @@ public class EmpresaController {
     }
 
     /**
+     * Atualiza uma empresa existente.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<EmpresaDto> update(@PathVariable long id, @Valid @RequestBody EmpresaCreateDto payload) {
+        return service.atualizar(id, payload)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
      * Exclui uma empresa por id.
      */
     @DeleteMapping("/{id}")
