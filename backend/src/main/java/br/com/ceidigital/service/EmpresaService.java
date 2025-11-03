@@ -23,6 +23,9 @@ public interface EmpresaService {
     /** Cria uma nova empresa a partir do payload de criação. */
     EmpresaDto criar(EmpresaCreateDto payload);
 
+    /** Atualiza uma empresa existente. Retorna vazio se não encontrada. */
+    java.util.Optional<EmpresaDto> atualizar(long id, EmpresaCreateDto payload);
+
     /** Exclui por id; retorna true se existia e foi removida. */
     boolean excluirPorId(long id);
 }

@@ -8,26 +8,8 @@ import { AuthService } from '../../core/auth.service';
   standalone: true,
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
-  template: `
-  <div class="auth-container">
-    <h2>Entrar</h2>
-    <form (ngSubmit)="onSubmit()" #f="ngForm">
-      <label>Email</label>
-      <input name="email" [(ngModel)]="email" type="email" required autocomplete="username" />
-      <label>Senha</label>
-      <input name="senha" [(ngModel)]="senha" type="password" required autocomplete="current-password" />
-      <button type="submit" [disabled]="f.invalid || loading">{{ loading ? 'Entrando...' : 'Entrar' }}</button>
-      <div class="error" *ngIf="error">{{error}}</div>
-    </form>
-  </div>
-  `,
-  styles: [`
-    .auth-container { max-width: 360px; margin: 64px auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-    label { display:block; margin-top: 12px; font-weight: 600; }
-    input { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ccc; border-radius: 6px; }
-    button { margin-top: 16px; width: 100%; padding: 10px; border:none; background:#1976d2; color:#fff; border-radius:6px; cursor:pointer; }
-    .error { margin-top: 12px; color: #c62828; }
-  `]
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   private auth = inject(AuthService);
@@ -44,7 +26,7 @@ export class LoginComponent {
     const email = (this.email || '').trim();
     const senha = this.senha || '';
     this.auth.login({ email, senha }).subscribe({
-      next: () => this.router.navigateByUrl('/empresas'),
+  next: () => this.router.navigateByUrl('/home'),
       error: (err) => {
         // Mensagens mais específicas conforme o status
         if (err?.status === 401) {

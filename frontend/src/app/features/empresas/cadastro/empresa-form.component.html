@@ -1,0 +1,59 @@
+<div class="page">
+  <div class="toolbar">
+    <h2>
+      {{ mode === 'create' ? 'Nova Empresa' : (mode === 'edit' ? 'Editar Empresa' : 'Consultar Empresa') }}
+    </h2>
+    <div class="actions">
+      <button class="btn" (click)="onCancel()">Cancelar</button>
+      <button *ngIf="mode !== 'view'" class="btn btn-primary" (click)="onSubmit()">Salvar</button>
+    </div>
+  </div>
+
+  <form [formGroup]="form" class="form">
+    <div class="grid">
+      <div class="field">
+        <label>Tipo de Pessoa <span class="req">*</span></label>
+        <select formControlName="tipoPessoa">
+          <option value="CNPJ">Pessoa Jurídica (CNPJ)</option>
+          <option value="CPF">Pessoa Física (CPF)</option>
+        </select>
+        <div class="error" *ngIf="form.get('tipoPessoa')?.touched && form.get('tipoPessoa')?.invalid">
+          Campo obrigatório.
+        </div>
+        <div class="error" *ngIf="serverErrors['tipoPessoa']">{{ serverErrors['tipoPessoa'][0] }}</div>
+      </div>
+      <div class="field">
+        <label>Documento <span class="req">*</span></label>
+  <input formControlName="numeroDocumento" type="text" (input)="onDocumentoInput($event)"
+    [attr.placeholder]="getDocumentoPlaceholder()" />
+        <div class="error" *ngIf="form.get('numeroDocumento')?.touched && form.get('numeroDocumento')?.hasError('required')">
+          Campo obrigatório.
+        </div>
+        <div class="error" *ngIf="form.get('numeroDocumento')?.touched && form.get('numeroDocumento')?.hasError('cpfInvalido')">
+          CPF inválido.
+        </div>
+        <div class="error" *ngIf="form.get('numeroDocumento')?.touched && form.get('numeroDocumento')?.hasError('cnpjInvalido')">
+          CNPJ inválido.
+        </div>
+        <div class="error" *ngIf="serverErrors['numeroDocumento']">{{ serverErrors['numeroDocumento'][0] }}</div>
+      </div>
+      <div class="field full">
+        <label>Razão Social <span class="req">*</span></label>
+        <input formControlName="nomeRazaoSocial" type="text" />
+        <div class="error" *ngIf="form.get('nomeRazaoSocial')?.touched && form.get('nomeRazaoSocial')?.invalid">
+          Campo obrigatório.
+        </div>
+        <div class="error" *ngIf="serverErrors['nomeRazaoSocial']">{{ serverErrors['nomeRazaoSocial'][0] }}</div>
+      </div>
+      <div class="field full">
+        <label>Fantasia</label>
+        <input formControlName="nomeFantasia" type="text" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input formControlName="email" type="email" />
+        <div class="error" *ngIf="serverErrors['email']">{{ serverErrors['email'][0] }}</div>
+      </div>
+    </div>
+  </form>
+</div>

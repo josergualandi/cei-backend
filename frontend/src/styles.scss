@@ -1,1 +1,31 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles and design tokens */
+:root{
+	--brand:#1976d2;
+	--brand-weak:#e3f2fd;
+	--text:#333;
+	--muted:#555;
+	--danger:#c62828;
+	--border:#e0e0e0;
+}
+
+html, body { height:100%; }
+body { margin:0; font-family:Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:var(--text); }
+
+/* Buttons */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; border-radius:8px; border:1px solid var(--border); background:#fff; color:var(--text); cursor:pointer; }
+.btn:hover { background:#f7f7f7; }
+.btn-primary { background:var(--brand); color:#fff; border-color:var(--brand); }
+.btn-primary:hover { background:#1565c0; }
+.btn-outline { background:#fff; color:var(--brand); border-color:var(--brand); }
+.btn-outline:hover { background:var(--brand-weak); }
+.btn-danger { background:var(--danger); color:#fff; border-color:var(--danger); }
+.btn-danger:hover { filter:brightness(.95); }
+
+/* Tables */
+table { width:100%; border-collapse: collapse; }
+th, td { text-align:left; padding: 10px 12px; border-bottom: 1px solid #eee; }
+thead th { border-bottom: 2px solid #ddd; }
+
+/* Forms */
+label { font-weight:600; }
+input, select, textarea { font: inherit; }

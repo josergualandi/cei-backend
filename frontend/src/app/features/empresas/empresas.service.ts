@@ -52,4 +52,16 @@ export class EmpresasService {
   create(payload: EmpresaCreateDto): Observable<EmpresaDto> {
     return this.http.post<EmpresaDto>(this.base, payload);
   }
+
+  getById(id: number): Observable<EmpresaDto> {
+    return this.http.get<EmpresaDto>(`${this.base}/${id}`);
+  }
+
+  update(id: number, payload: EmpresaCreateDto): Observable<EmpresaDto> {
+    return this.http.put<EmpresaDto>(`${this.base}/${id}`, payload);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
+  }
 }

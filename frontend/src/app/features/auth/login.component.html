@@ -1,0 +1,11 @@
+<div class="auth-container">
+  <h2>Entrar</h2>
+  <form (ngSubmit)="onSubmit()" #f="ngForm">
+    <label>Email</label>
+    <input name="email" [(ngModel)]="email" type="email" required autocomplete="username" />
+    <label>Senha</label>
+    <input name="senha" [(ngModel)]="senha" type="password" required autocomplete="current-password" />
+    <button type="submit" class="btn btn-primary" [disabled]="f.invalid || loading">{{ loading ? 'Entrando...' : 'Entrar' }}</button>
+    <div class="error" *ngIf="error">{{error}}</div>
+  </form>
+</div>

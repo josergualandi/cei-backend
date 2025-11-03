@@ -7,8 +7,11 @@ Abra cada projeto em sua própria janela do VS Code ou use os atalhos abaixo.
 - `frontend.code-workspace` → abre o projeto Angular
 
 ## Atalhos para rodar (Windows)
-- `run-backend.cmd` → sobe o backend (porta 8081)
+- `run-backend.cmd` → sobe o backend (porta 8081 por padrão)
 - `run-frontend.cmd` → sobe o frontend (porta 4200)
+
+> Dica: o diretório raiz não contém um `pom.xml`. Evite rodar `mvnw` a partir da raiz;
+> use os scripts acima ou abra cada projeto no seu workspace.
 
 ## VS Code – Tarefas e Debug
 ### Backend
@@ -28,3 +31,13 @@ Abra cada projeto em sua própria janela do VS Code ou use os atalhos abaixo.
 ## URLs
 - API: http://localhost:8081
 - App: http://localhost:4200
+
+## Variáveis de ambiente (opcional)
+Você pode definir variáveis no arquivo `.env` na raiz para customizar a execução do backend:
+
+- `SERVER_PORT` — porta do Spring Boot (default 8081)
+- `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD`
+- `JWT_SECRET`, `JWT_EXPIRATION`
+- `APP_ADMIN_EMAIL`, `APP_ADMIN_PASSWORD`
+
+Os scripts de execução irão carregar automaticamente essas variáveis se estiverem presentes.

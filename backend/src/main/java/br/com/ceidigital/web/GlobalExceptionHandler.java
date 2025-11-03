@@ -1,5 +1,6 @@
 package br.com.ceidigital.web;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -56,8 +57,28 @@ public class GlobalExceptionHandler {
         var locale = LocaleContextHolder.getLocale();
         pd.setTitle(messageSource.getMessage("conflict", null, locale));
         String msg = ex.getMostSpecificCause() != null ? ex.getMostSpecificCause().getMessage() : ex.getMessage();
-        // Mensagem amigável quando a restrição única de CNPJ é violada
-        if (msg != null && msg.toLowerCase().contains("cnpj")) {
+
+        // Detecta violação da restrição única de documento (tipo_pessoa + numero_documento)
+        boolean isDocUniqueViolation = false;
+        Throwable cause = ex.getCause();
+        if (cause instanceof ConstraintViolationException cve) {
+            String constraint = cve.getConstraintName();
+            if (constraint != null && constraint.equalsIgnoreCase("ux_empresa_tipo_doc")) {
+                isDocUniqueViolation = true;
+            }
+        }
+        if (msg != null && msg.toLowerCase().contains("ux_empresa_tipo_doc")) {
+            isDocUniqueViolation = true;
+        }
+
+        if (isDocUniqueViolation) {
+            String detail = messageSource.getMessage("documento.duplicado", null, locale);
+            pd.setDetail(detail);
+            Map<String, String> errors = new HashMap<>();
+            errors.put("numeroDocumento", detail);
+            pd.setProperty("errors", errors);
+        } else if (msg != null && msg.toLowerCase().contains("cnpj")) {
+            // Backward compatibility: mensagens antigas que mencionam CNPJ
             pd.setDetail(messageSource.getMessage("cnpj.duplicado", null, locale));
         } else {
             pd.setDetail(messageSource.getMessage("integrity.violation", null, locale));

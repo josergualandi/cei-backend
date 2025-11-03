@@ -55,6 +55,42 @@ public class EmpresaServiceImpl implements EmpresaService {
 
     @Override
     @Transactional
+    public Optional<EmpresaDto> atualizar(long id, EmpresaCreateDto payload) {
+        return repository.findById(id).map(existing -> {
+            // Atualiza somente campos informados
+            if (payload.cnpj() != null && !payload.cnpj().isBlank()) {
+                existing.setCnpj(payload.cnpj());
+            }
+            if (payload.tipoPessoa() != null && !payload.tipoPessoa().isBlank()) {
+                existing.setTipoPessoa(payload.tipoPessoa());
+            }
+            if (payload.numeroDocumento() != null && !payload.numeroDocumento().isBlank()) {
+                existing.setNumeroDocumento(payload.numeroDocumento().replaceAll("[^0-9]", ""));
+            }
+            if (payload.nomeRazaoSocial() != null && !payload.nomeRazaoSocial().isBlank()) {
+                existing.setNomeRazaoSocial(payload.nomeRazaoSocial());
+            }
+            if (payload.nome() != null && !payload.nome().isBlank()) {
+                existing.setNome(payload.nome());
+            }
+            existing.setNomeFantasia(payload.nomeFantasia());
+            existing.setTipoAtividade(payload.tipoAtividade());
+            existing.setCnae(payload.cnae());
+            existing.setDataAbertura(payload.dataAbertura());
+            existing.setSituacao(payload.situacao());
+            existing.setEndereco(payload.endereco());
+            existing.setCidade(payload.cidade());
+            existing.setEstado(payload.estado());
+            existing.setTelefone(payload.telefone());
+            existing.setEmail(payload.email());
+
+            Empresa saved = repository.save(existing);
+            return DtoMapper.toDto(saved);
+        });
+    }
+
+    @Override
+    @Transactional
     public boolean excluirPorId(long id) {
         if (!repository.existsById(id)) return false;
         repository.deleteById(id);
