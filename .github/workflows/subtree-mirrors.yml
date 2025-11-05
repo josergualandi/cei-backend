@@ -1,0 +1,121 @@
+name: Mirror backend/ and frontend/ to dedicated repos
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  detect-changes:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Paths filter
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  push-backend:
+    name: Push backend subtree
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add backend remote
+        env:
+          GH_TOKEN: ${{ secrets.MIRROR_PUSH_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "MIRROR_PUSH_TOKEN is not set. Skipping backend push." && exit 0
+          fi
+          git remote add backend https://${GH_TOKEN}@github.com/josergualandi/cei-backend.git
+          git fetch --no-tags backend
+
+      - name: Split backend subtree
+        run: |
+          git subtree split --prefix=backend -b tmp-backend-split
+
+      - name: Push to backend repo (main)
+        env:
+          GH_TOKEN: ${{ secrets.MIRROR_PUSH_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "MIRROR_PUSH_TOKEN is not set. Skipping backend push." && exit 0
+          fi
+          git push backend tmp-backend-split:main
+
+      - name: Cleanup temp branch
+        if: always()
+        run: git branch -D tmp-backend-split || true
+
+  push-frontend:
+    name: Push frontend subtree
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add frontend remote
+        env:
+          GH_TOKEN: ${{ secrets.MIRROR_PUSH_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "MIRROR_PUSH_TOKEN is not set. Skipping frontend push." && exit 0
+          fi
+          git remote add frontend https://${GH_TOKEN}@github.com/josergualandi/cei-frontend.git
+          git fetch --no-tags frontend
+
+      - name: Split frontend subtree
+        run: |
+          git subtree split --prefix=frontend -b tmp-frontend-split
+
+      - name: Push to frontend repo (main)
+        env:
+          GH_TOKEN: ${{ secrets.MIRROR_PUSH_TOKEN }}
+        run: |
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "MIRROR_PUSH_TOKEN is not set. Skipping frontend push." && exit 0
+          fi
+          git push frontend tmp-frontend-split:main
+
+      - name: Cleanup temp branch
+        if: always()
+        run: git branch -D tmp-frontend-split || true
+
+  # Note: Set a repo secret named MIRROR_PUSH_TOKEN with a PAT that has 'repo' scope
+  # and write access to 'josergualandi/cei-backend' and 'josergualandi/cei-frontend'.

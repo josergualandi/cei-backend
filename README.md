@@ -122,5 +122,52 @@ Você pode sobrescrever via variáveis de ambiente padrão do Spring:
 - JDBC (aplicação): `jdbc:postgresql://localhost:5432/cei_db`
 - Conexão cliente: `postgresql://ceiuser:ceipass@localhost:5432/cei_db`
 
+## Guia de desenvolvimento local
+
+Para um passo-a-passo mais detalhado do ambiente (URLs, credenciais padrão e troubleshooting), consulte o arquivo `DESENVOLVIMENTO-LOCAL.md` na raiz.
+
+## Arquitetura de repositórios (monorepo + espelhos via subtree)
+
+Este repositório principal (monorepo) concentra tudo (`backend/`, `frontend/`, docs e scripts). Para facilitar deploys e pipelines dedicados, mantemos dois repositórios espelho que recebem apenas os diretórios específicos via `git subtree`:
+
+- Monorepo (principal): `josergualandi/Cadastro-Empresarial-Integrado-CEI-` (este repo)
+- Backend (espelho): `josergualandi/cei-backend` — recebe somente `backend/`
+- Frontend (espelho): `josergualandi/cei-frontend` — recebe somente `frontend/`
+
+Como trabalhar no dia a dia:
+- Faça os commits normalmente aqui no monorepo.
+- Quando quiser refletir as mudanças nos espelhos, use os scripts na raiz:
+
+```powershell
+# Empurra apenas backend/ para o repo de backend (branch main)
+.\push-backend.cmd
+
+# Empurra apenas frontend/ para o repo de frontend (branch main)
+.\push-frontend.cmd
+```
+
+Observações e boas práticas:
+- Evite commitar diretamente nos repositórios espelho; trate-os como destino de publicação. A fonte da verdade é o monorepo.
+- Se preferir automatizar, é possível criar um workflow que rode os scripts de subtree a cada push no `main` deste repositório.
+- Pipelines/deploys que precisam só do backend ou só do frontend podem apontar para os repositórios espelho, mantendo históricos e triggers independentes.
+
+### Diagrama
+
+```mermaid
+graph LR
+  A[Monorepo<br/>Cadastro-Empresarial-Integrado-CEI-] -- git subtree split (backend/) --> B[Repo espelho<br/>cei-backend]
+  A -- git subtree split (frontend/) --> C[Repo espelho<br/>cei-frontend]
+```
+
+### Automação dos espelhos (GitHub Actions)
+
+Este repositório possui um workflow em `.github/workflows/subtree-mirrors.yml` que, a cada push no `main`, detecta mudanças em `backend/` e/ou `frontend/` e empurra automaticamente os subtrees para os repositórios espelho.
+
+Para funcionar, configure um Secret do repositório chamado `MIRROR_PUSH_TOKEN` com um Personal Access Token (PAT) que tenha permissão de escrita (repo) nos repositórios:
+- `josergualandi/cei-backend`
+- `josergualandi/cei-frontend`
+
+Depois disso, os espelhos serão atualizados automaticamente quando mudanças ocorrerem nas respectivas pastas.
+
 ---
 Qualquer dúvida, abra uma issue ou peça ajuda por aqui. 🙂
