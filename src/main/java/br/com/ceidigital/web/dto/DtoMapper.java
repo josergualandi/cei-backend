@@ -36,7 +36,8 @@ public final class DtoMapper {
                 e.getTelefone(),
                 e.getEmail(),
                 e.getCriadoEm(),
-                e.getAtualizadoEm()
+                e.getAtualizadoEm(),
+                    e.isBloqueada()
         );
     }
 

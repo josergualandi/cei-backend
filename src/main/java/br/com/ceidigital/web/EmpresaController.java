@@ -1,14 +1,22 @@
 package br.com.ceidigital.web;
 
+import br.com.ceidigital.domain.Usuario;
+import br.com.ceidigital.repository.UsuarioRepository;
 import br.com.ceidigital.service.EmpresaService;
+import br.com.ceidigital.web.dto.DtoMapper;
 import br.com.ceidigital.web.dto.request.EmpresaCreateDto;
 import br.com.ceidigital.web.dto.response.EmpresaDto;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Controlador REST para recursos de Empresa.
@@ -19,9 +27,11 @@ import java.util.List;
 public class EmpresaController {
 
     private final EmpresaService service;
+    private final UsuarioRepository usuarioRepository;
 
-    public EmpresaController(EmpresaService service) {
+    public EmpresaController(EmpresaService service, UsuarioRepository usuarioRepository) {
         this.service = service;
+        this.usuarioRepository = usuarioRepository;
     }
 
     /**
@@ -29,14 +39,29 @@ public class EmpresaController {
      */
     @GetMapping
     public List<EmpresaDto> list() {
-        return service.listar();
+        // MASTER vê todas; usuário comum vê apenas a própria
+        if (isAdmin()) {
+            return service.listar();
+        }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth != null ? Objects.toString(auth.getName(), null) : null;
+        if (email == null) return List.of();
+        Optional<Usuario> u = usuarioRepository.findByEmail(email.trim().toLowerCase());
+        if (u.isEmpty() || u.get().getEmpresa() == null) return List.of();
+        return List.of(DtoMapper.toDto(u.get().getEmpresa()));
     }
 
     /**
-     * Busca uma empresa por id.
+     * Busca uma empresa por id. ADMIN_MAIN pode ver qualquer; usuário comum apenas a sua.
      */
     @GetMapping("/{id}")
     public ResponseEntity<EmpresaDto> get(@PathVariable long id) {
+        if (isAdmin()) {
+            return service.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        }
+        var current = getCurrentUser();
+        if (current.isEmpty() || current.get().getEmpresa() == null) return ResponseEntity.status(403).build();
+        if (!current.get().getEmpresa().getId().equals(id)) return ResponseEntity.status(403).build();
         return service.buscarPorId(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -54,15 +79,7 @@ public class EmpresaController {
      */
     @GetMapping("/exists")
     public ResponseEntity<ExistsResponse> exists(@RequestParam String tipoPessoa, @RequestParam String numeroDocumento) {
-        String tp = (tipoPessoa == null ? "" : tipoPessoa.trim().toUpperCase());
-        String digits = numeroDocumento == null ? "" : numeroDocumento.replaceAll("[^0-9]", "");
-        if (tp.isBlank() || digits.isBlank()) {
-            return ResponseEntity.ok(new ExistsResponse(false));
-        }
-        boolean found = service
-                .listar()
-                .stream()
-                .anyMatch(e -> tp.equalsIgnoreCase(e.tipoPessoa()) && digits.equals(e.numeroDocumento()));
+        boolean found = service.existsByTipoPessoaAndNumeroDocumento(tipoPessoa, numeroDocumento);
         return ResponseEntity.ok(new ExistsResponse(found));
     }
 
@@ -89,9 +106,35 @@ public class EmpresaController {
      */
     @PutMapping("/{id}")
     public ResponseEntity<EmpresaDto> update(@PathVariable long id, @Valid @RequestBody EmpresaCreateDto payload) {
+    if (isAdmin()) {
         return service.atualizar(id, payload)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+    var current = getCurrentUser();
+    if (current.isEmpty() || current.get().getEmpresa() == null) return ResponseEntity.status(403).build();
+    if (!current.get().getEmpresa().getId().equals(id)) return ResponseEntity.status(403).build();
+    // Usuário comum: não pode alterar tipo/documento
+    var sanitized = new EmpresaCreateDto(
+        null, // tipoPessoa bloqueado
+        null, // numeroDocumento bloqueado
+        payload.nomeRazaoSocial(),
+        null, // nome alias
+        null, // cnpj alias
+        payload.nomeFantasia(),
+        payload.tipoAtividade(),
+        payload.cnae(),
+        payload.dataAbertura(),
+        payload.situacao(),
+        payload.endereco(),
+        payload.cidade(),
+        payload.estado(),
+        payload.telefone(),
+        payload.email()
+    );
+    return service.atualizar(id, sanitized)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
     }
 
     /**
@@ -99,7 +142,30 @@ public class EmpresaController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable long id) {
-        boolean removed = service.excluirPorId(id);
-        return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        if (isAdmin()) {
+            boolean removed = service.excluirPorIdForce(id);
+            return removed ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        }
+        // Usuário comum não pode excluir
+        return ResponseEntity.status(403).build();
+    }
+
+    private boolean isAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth != null ? Objects.toString(auth.getName(), null) : null;
+        if (email == null) return false;
+        return getCurrentUser()
+                .map(u -> u.getPerfis().stream().anyMatch(p -> {
+                    String n = p.getNome();
+                    return n != null && (n.equalsIgnoreCase("MASTER") || n.equalsIgnoreCase("ADMIN_MAIN"));
+                }))
+                .orElse(false);
+    }
+
+    private Optional<Usuario> getCurrentUser(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = auth != null ? Objects.toString(auth.getName(), null) : null;
+        if (email == null) return Optional.empty();
+        return usuarioRepository.findByEmail(email.trim().toLowerCase());
     }
 }

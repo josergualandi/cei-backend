@@ -46,6 +46,10 @@ public class Usuario {
     )
     private Set<Perfil> perfis = new LinkedHashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_empresa")
+    private Empresa empresa;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -69,4 +73,7 @@ public class Usuario {
 
     public Set<Perfil> getPerfis() { return perfis; }
     public void setPerfis(Set<Perfil> perfis) { this.perfis = perfis; }
+
+    public Empresa getEmpresa() { return empresa; }
+    public void setEmpresa(Empresa empresa) { this.empresa = empresa; }
 }

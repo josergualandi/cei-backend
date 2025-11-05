@@ -73,6 +73,9 @@ public class Empresa {
     @Column(name = "atualizado_em", nullable = false)
     private Instant atualizadoEm = Instant.now();
 
+    @Column(name = "bloqueada", nullable = false)
+    private boolean bloqueada = false; // quando criada automaticamente no registro, impede excluir/alterar doc/tipo
+
     // Compatibilidade: aceita 'cnpj' e 'nome' (transientes) para não quebrar clientes antigos
     @Transient
     private String cnpj;
@@ -144,6 +147,9 @@ public class Empresa {
 
     public Instant getAtualizadoEm() { return atualizadoEm; }
     public void setAtualizadoEm(Instant atualizadoEm) { this.atualizadoEm = atualizadoEm; }
+
+    public boolean isBloqueada() { return bloqueada; }
+    public void setBloqueada(boolean bloqueada) { this.bloqueada = bloqueada; }
 
     // Compat: cnpj como alias de numeroDocumento quando tipoPessoa=CNPJ
     public String getCnpj() {

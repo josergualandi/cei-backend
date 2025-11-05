@@ -20,5 +20,6 @@ public record EmpresaDto(
         String telefone,
         String email,
         Instant criadoEm,
-        Instant atualizadoEm
+        Instant atualizadoEm,
+        boolean bloqueada
 ) {}

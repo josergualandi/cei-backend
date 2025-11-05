@@ -55,17 +55,30 @@ public class EmpresaServiceImpl implements EmpresaService {
 
     @Override
     @Transactional
+    public EmpresaDto criarBloqueada(EmpresaCreateDto payload) {
+        Empresa entity = DtoMapper.fromCreate(payload);
+        entity.setId(null);
+        entity.setBloqueada(true);
+        Empresa saved = repository.save(entity);
+        return DtoMapper.toDto(saved);
+    }
+
+    @Override
+    @Transactional
     public Optional<EmpresaDto> atualizar(long id, EmpresaCreateDto payload) {
         return repository.findById(id).map(existing -> {
+            boolean locked = existing.isBloqueada();
             // Atualiza somente campos informados
-            if (payload.cnpj() != null && !payload.cnpj().isBlank()) {
-                existing.setCnpj(payload.cnpj());
-            }
-            if (payload.tipoPessoa() != null && !payload.tipoPessoa().isBlank()) {
-                existing.setTipoPessoa(payload.tipoPessoa());
-            }
-            if (payload.numeroDocumento() != null && !payload.numeroDocumento().isBlank()) {
-                existing.setNumeroDocumento(payload.numeroDocumento().replaceAll("[^0-9]", ""));
+            if (!locked) {
+                if (payload.cnpj() != null && !payload.cnpj().isBlank()) {
+                    existing.setCnpj(payload.cnpj());
+                }
+                if (payload.tipoPessoa() != null && !payload.tipoPessoa().isBlank()) {
+                    existing.setTipoPessoa(payload.tipoPessoa());
+                }
+                if (payload.numeroDocumento() != null && !payload.numeroDocumento().isBlank()) {
+                    existing.setNumeroDocumento(payload.numeroDocumento().replaceAll("[^0-9]", ""));
+                }
             }
             if (payload.nomeRazaoSocial() != null && !payload.nomeRazaoSocial().isBlank()) {
                 existing.setNomeRazaoSocial(payload.nomeRazaoSocial());
@@ -92,8 +105,31 @@ public class EmpresaServiceImpl implements EmpresaService {
     @Override
     @Transactional
     public boolean excluirPorId(long id) {
-        if (!repository.existsById(id)) return false;
-        repository.deleteById(id);
-        return true;
+        return repository.findById(id).map(e -> {
+            if (e.isBloqueada()) {
+                return false; // bloqueada: não exclui
+            }
+            repository.deleteById(id);
+            return true;
+        }).orElse(false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByTipoPessoaAndNumeroDocumento(String tipoPessoa, String numeroDocumentoDigits) {
+        if (tipoPessoa == null || numeroDocumentoDigits == null) return false;
+        String tp = tipoPessoa.trim().toUpperCase();
+        String digits = numeroDocumentoDigits.replaceAll("[^0-9]", "");
+        if (tp.isBlank() || digits.isBlank()) return false;
+        return repository.findByTipoPessoaAndNumeroDocumento(tp, digits).isPresent();
+    }
+
+    @Override
+    @Transactional
+    public boolean excluirPorIdForce(long id) {
+        return repository.findById(id).map(e -> {
+            repository.deleteById(id);
+            return true;
+        }).orElse(false);
     }
 }
