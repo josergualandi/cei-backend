@@ -1,0 +1,34 @@
+# fly.toml app configuration file generated for cei-digital-backend-delicate-water-8242 on 2025-11-03T23:17:04-03:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'cei-digital-backend-delicate-water-8242'
+primary_region = 'gru'
+
+[build]
+  dockerfile = 'Dockerfile'
+
+[env]
+  SERVER_PORT = '8081'
+  SPRING_PROFILES_ACTIVE = 'fly'
+
+[http_service]
+  internal_port = 8081
+  force_https = true
+  auto_stop_machines = 'off'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+  [[http_service.checks]]
+    interval = '10s'
+    timeout = '2s'
+    grace_period = '10s'
+    method = 'GET'
+    path = '/actuator/health'
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

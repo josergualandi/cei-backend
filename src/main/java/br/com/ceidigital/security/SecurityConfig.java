@@ -3,6 +3,7 @@ package br.com.ceidigital.security;
 import br.com.ceidigital.repository.UsuarioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -34,15 +35,19 @@ public class SecurityConfig {
         this.usuarioRepository = usuarioRepository;
     }
 
+    @Value("${app.cors.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}")
+    private String corsAllowedOrigins;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
         .csrf(csrf -> csrf.disable())
         .cors(cors -> {})
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
+    .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/", "/index.html", "/auth/login").permitAll()
+                        .requestMatchers("/", "/index.html", "/auth/login", "/auth/register/**").permitAll()
+            .requestMatchers("/__debug/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -98,9 +103,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-    cfg.setAllowCredentials(true);
-    // Permitir dev server acessando como localhost ou 127.0.0.1 (lista explícita de origins)
-    cfg.setAllowedOrigins(java.util.List.of("http://localhost:4200", "http://127.0.0.1:4200"));
+        cfg.setAllowCredentials(true);
+        // Permitir origins configuráveis (APP_CORS_ALLOWED_ORIGINS)
+        java.util.List<String> origins = java.util.Arrays.stream(corsAllowedOrigins.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+        cfg.setAllowedOrigins(origins);
         // Permitir todos os headers comuns (Angular pode enviar headers adicionais)
         cfg.addAllowedHeader("*");
         // Métodos permitidos
