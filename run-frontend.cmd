@@ -9,7 +9,7 @@ cd /d "%~dp0frontend" || (
 
 echo Iniciando Frontend (Angular) em %CD% ...
 if not exist node_modules (
-  echo Instalando dependencias (npm ci)...
+  echo Instalando dependencias: npm ci
   call npm ci
 )
 call npm start

@@ -1,0 +1,40 @@
+name: Deploy Backend to Fly.io
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: fly-deploy-backend
+      cancel-in-progress: true
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io (remote builder)
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl deploy --remote-only --config fly.toml --strategy rolling --wait-timeout 600
+
+      - name: Wait for health (actuator)
+        env:
+          APP_URL: https://cei-digital-backend-delicate-water-8242.fly.dev
+        run: |
+          echo "Waiting for health at $APP_URL/actuator/health"
+          for i in {1..30}; do
+            RES=$(curl -fsS "$APP_URL/actuator/health" || true)
+            echo "Attempt $i: $RES"
+            echo "$RES" | grep -q '"status":"UP"' && { echo "Service is UP"; exit 0; }
+            sleep 10
+          done
+          echo "Health check did not reach UP in time" >&2
+          exit 1

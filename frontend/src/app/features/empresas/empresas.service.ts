@@ -64,4 +64,9 @@ export class EmpresasService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/${id}`);
   }
+
+  exists(tipoPessoa: 'CPF' | 'CNPJ', numeroDocumento: string): Observable<{ exists: boolean }> {
+    const params = new URLSearchParams({ tipoPessoa, numeroDocumento });
+    return this.http.get<{ exists: boolean }>(`${this.base}/exists?${params.toString()}`);
+  }
 }

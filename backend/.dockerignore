@@ -1,0 +1,14 @@
+# Exclude build outputs and VCS
+target/
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+
+# Node modules from any accidental copies
+node_modules/
+
+# Local artifacts
+*.log
+*.DS_Store

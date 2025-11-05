@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:cei_db;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+# Perfil "fly" pensado para subir barato/rápido sem Postgres gerenciado.
+# Em produção de verdade, substitua por Postgres e configure SPRING_DATASOURCE_* nas secrets do Fly.

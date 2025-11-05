@@ -5,7 +5,7 @@
     </h2>
     <div class="actions">
       <button class="btn" (click)="onCancel()">Cancelar</button>
-      <button *ngIf="mode !== 'view'" class="btn btn-primary" (click)="onSubmit()">Salvar</button>
+  <button *ngIf="mode !== 'view'" class="btn btn-primary" (click)="onSubmit()" [disabled]="!canSave">Salvar</button>
     </div>
   </div>
 
@@ -20,7 +20,7 @@
         <div class="error" *ngIf="form.get('tipoPessoa')?.touched && form.get('tipoPessoa')?.invalid">
           Campo obrigatório.
         </div>
-        <div class="error" *ngIf="serverErrors['tipoPessoa']">{{ serverErrors['tipoPessoa'][0] }}</div>
+  <div class="error" *ngIf="getServerError('tipoPessoa') as se">{{ se }}</div>
       </div>
       <div class="field">
         <label>Documento <span class="req">*</span></label>
@@ -35,7 +35,7 @@
         <div class="error" *ngIf="form.get('numeroDocumento')?.touched && form.get('numeroDocumento')?.hasError('cnpjInvalido')">
           CNPJ inválido.
         </div>
-        <div class="error" *ngIf="serverErrors['numeroDocumento']">{{ serverErrors['numeroDocumento'][0] }}</div>
+  <div class="error" *ngIf="getServerError('numeroDocumento') as se">{{ se }}</div>
       </div>
       <div class="field full">
         <label>Razão Social <span class="req">*</span></label>
@@ -43,7 +43,7 @@
         <div class="error" *ngIf="form.get('nomeRazaoSocial')?.touched && form.get('nomeRazaoSocial')?.invalid">
           Campo obrigatório.
         </div>
-        <div class="error" *ngIf="serverErrors['nomeRazaoSocial']">{{ serverErrors['nomeRazaoSocial'][0] }}</div>
+  <div class="error" *ngIf="getServerError('nomeRazaoSocial') as se">{{ se }}</div>
       </div>
       <div class="field full">
         <label>Fantasia</label>
@@ -52,7 +52,7 @@
       <div class="field">
         <label>Email</label>
         <input formControlName="email" type="email" />
-        <div class="error" *ngIf="serverErrors['email']">{{ serverErrors['email'][0] }}</div>
+  <div class="error" *ngIf="getServerError('email') as se">{{ se }}</div>
       </div>
     </div>
   </form>

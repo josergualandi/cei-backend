@@ -5,6 +5,8 @@ import { Observable, tap } from 'rxjs';
 
 interface LoginRequest { email: string; senha: string; }
 interface LoginResponse { tokenType: string; accessToken: string; expiresIn: number; roles: string[]; }
+export interface RequestTokenPayload { email: string; telefone: string; }
+export interface ConfirmRegistrationPayload { email: string; nome: string; senha: string; token: string; }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -15,6 +17,14 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${environment.apiBaseUrl}/auth/login`, req).pipe(
       tap(res => localStorage.setItem(this.tokenKey, res.accessToken))
     );
+  }
+
+  requestRegistrationToken(payload: RequestTokenPayload) {
+    return this.http.post(`${environment.apiBaseUrl}/auth/register/request-token`, payload);
+  }
+
+  confirmRegistration(payload: ConfirmRegistrationPayload) {
+    return this.http.post(`${environment.apiBaseUrl}/auth/register/confirm`, payload);
   }
 
   logout() {

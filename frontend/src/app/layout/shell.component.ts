@@ -2,11 +2,12 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router } from '@angular/router';
 import { AuthService } from '../core/auth.service';
+import { SnackbarContainerComponent } from '../shared/snackbar/snackbar-container.component';
 
 @Component({
   standalone: true,
   selector: 'app-shell',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, SnackbarContainerComponent],
   templateUrl: './shell.component.html',
   styleUrls: ['./shell.component.scss']
 })

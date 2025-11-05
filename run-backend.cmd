@@ -19,6 +19,11 @@ if exist "%ENV_FILE%" (
 		if /I "%%~A"=="JWT_EXPIRATION" set "JWT_EXPIRATION=%%~B"
 		if /I "%%~A"=="APP_ADMIN_EMAIL" set "APP_ADMIN_EMAIL=%%~B"
 		if /I "%%~A"=="APP_ADMIN_PASSWORD" set "APP_ADMIN_PASSWORD=%%~B"
+		if /I "%%~A"=="TWILIO_ACCOUNT_SID" set "TWILIO_ACCOUNT_SID=%%~B"
+		if /I "%%~A"=="TWILIO_AUTH_TOKEN" set "TWILIO_AUTH_TOKEN=%%~B"
+		if /I "%%~A"=="TWILIO_FROM_NUMBER" set "TWILIO_FROM_NUMBER=%%~B"
+		if /I "%%~A"=="TWILIO_WHATSAPP_FROM" set "TWILIO_WHATSAPP_FROM=%%~B"
+		if /I "%%~A"=="WHATSAPP_ENABLED" set "WHATSAPP_ENABLED=%%~B"
 	)
 )
 

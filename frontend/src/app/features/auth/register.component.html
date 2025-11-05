@@ -1,0 +1,58 @@
+<div class="auth-container">
+  <h2>Cadastro</h2>
+
+  <ng-container *ngIf="step === 1; else step2">
+    <p>Informe seus dados para receber um código de verificação.</p>
+    <form [formGroup]="formRequest" (ngSubmit)="onRequestToken()">
+  <label>E-mail</label>
+  <input type="email" formControlName="email" autocomplete="email" required />
+
+  <label>Telefone</label>
+  <input type="tel" formControlName="telefone" autocomplete="tel" (input)="onTelefoneInput($event)" placeholder="+55 (11) 91234-5678" required />
+
+      <label>Tipo de pessoa</label>
+      <select formControlName="tipoPessoa" required>
+        <option value="CNPJ">Pessoa Jurídica (CNPJ)</option>
+        <option value="CPF">Pessoa Física (CPF)</option>
+      </select>
+
+  <label>Documento</label>
+  <input type="text" formControlName="documento" autocomplete="off" [placeholder]="getDocumentoPlaceholder()" (input)="onDocumentoInput($event)" required />
+      <div class="hint" *ngIf="formRequest.get('documento')?.valid" [ngClass]="{ 'danger': docExists, 'success': !docExists }">
+        {{ docExists ? 'Documento já cadastrado na plataforma.' : 'Documento disponível.' }}
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="formRequest.invalid || docExists || loading">
+        {{ loading ? 'Enviando...' : 'Enviar código' }}
+      </button>
+    </form>
+    <button type="button" class="btn" (click)="backToLogin()">Já tenho conta</button>
+  </ng-container>
+
+  <ng-template #step2>
+    <p>Informe seu nome, defina uma senha e o código recebido.</p>
+    <form [formGroup]="formConfirm" (ngSubmit)="onConfirm()">
+      <label>Nome</label>
+      <input type="text" formControlName="nome" required />
+      <label>Senha</label>
+      <input type="password" formControlName="senha" required />
+      <label>Código</label>
+      <input type="text" formControlName="token" required />
+
+      <div class="hint" *ngIf="tokenExpiresIn > 0">
+        Código expira em {{ formatSeconds(tokenExpiresIn) }}
+      </div>
+
+      <div class="actions-inline">
+        <button type="button" class="btn" (click)="onResendCode()" [disabled]="resendCooldown > 0 || loading">
+          {{ resendCooldown > 0 ? ('Reenviar em ' + formatSeconds(resendCooldown)) : 'Reenviar código' }}
+        </button>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="formConfirm.invalid || loading">
+        {{ loading ? 'Confirmando...' : 'Confirmar cadastro' }}
+      </button>
+    </form>
+    <button type="button" class="btn" (click)="step = 1">Voltar</button>
+  </ng-template>
+</div>

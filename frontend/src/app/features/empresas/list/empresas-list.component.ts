@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { EmpresasService, EmpresaDto } from '../empresas.service';
+import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 
 @Component({
   standalone: true,
@@ -13,6 +14,7 @@ import { EmpresasService, EmpresaDto } from '../empresas.service';
 export class EmpresasListComponent {
   private svc = inject(EmpresasService);
   private router = inject(Router);
+  private snackbar = inject(SnackbarService);
   empresas: EmpresaDto[] | null = null;
 
   constructor(){
@@ -39,8 +41,8 @@ export class EmpresasListComponent {
     const ok = confirm(`Deseja excluir a empresa "${e.nomeRazaoSocial}"?`);
     if (!ok) return;
     this.svc.delete(e.id).subscribe({
-      next: () => this.load(),
-      error: () => alert('Falha ao excluir. Tente novamente.')
+      next: () => { this.snackbar.success('Empresa excluída com sucesso.'); this.load(); },
+      error: () => this.snackbar.error('Falha ao excluir. Tente novamente.')
     });
   }
 

@@ -49,6 +49,26 @@ public class EmpresaController {
     }
 
     /**
+     * Verifica existência por tipoPessoa (CPF/CNPJ) e número de documento (com ou sem máscara).
+     * Retorna JSON { "exists": true|false }.
+     */
+    @GetMapping("/exists")
+    public ResponseEntity<ExistsResponse> exists(@RequestParam String tipoPessoa, @RequestParam String numeroDocumento) {
+        String tp = (tipoPessoa == null ? "" : tipoPessoa.trim().toUpperCase());
+        String digits = numeroDocumento == null ? "" : numeroDocumento.replaceAll("[^0-9]", "");
+        if (tp.isBlank() || digits.isBlank()) {
+            return ResponseEntity.ok(new ExistsResponse(false));
+        }
+        boolean found = service
+                .listar()
+                .stream()
+                .anyMatch(e -> tp.equalsIgnoreCase(e.tipoPessoa()) && digits.equals(e.numeroDocumento()));
+        return ResponseEntity.ok(new ExistsResponse(found));
+    }
+
+    public record ExistsResponse(boolean exists) {}
+
+    /**
      * Cria uma nova empresa.
      * Usa validação de bean (@Valid) para garantir obrigatoriedade de campos.
      * Retorna 201 Created com cabeçalho Location apontando para o recurso criado.

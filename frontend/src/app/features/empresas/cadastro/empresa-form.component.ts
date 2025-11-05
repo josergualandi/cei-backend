@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmpresasService, EmpresaCreateDto, EmpresaDto } from '../empresas.service';
+import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
+import { finalize } from 'rxjs/operators';
 
 type Mode = 'create' | 'edit' | 'view';
 
@@ -18,9 +20,11 @@ export class EmpresaFormComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private svc = inject(EmpresasService);
+  private snackbar = inject(SnackbarService);
 
   mode: Mode = 'create';
   id: number | null = null;
+  saving = false;
 
   form = this.fb.group({
     tipoPessoa: ['CNPJ', Validators.required],
@@ -30,7 +34,8 @@ export class EmpresaFormComponent {
     email: ['']
   });
 
-  serverErrors: Record<string, string[]> = {};
+  // Suporta mapa vindo do backend como string ou string[]
+  serverErrors: Record<string, string | string[]> = {};
 
   constructor(){
     this.route.paramMap.subscribe(params => {
@@ -57,6 +62,7 @@ export class EmpresaFormComponent {
           this.form.updateValueAndValidity({ onlySelf: false, emitEvent: false });
           if (this.mode === 'view') this.form.disable();
           else this.form.enable();
+          this.form.markAsPristine();
         });
       } else {
         this.form.reset({ tipoPessoa: 'CNPJ' }, { emitEvent: false });
@@ -120,19 +126,24 @@ export class EmpresaFormComponent {
       this.form.markAllAsTouched();
       return;
     }
+    if (this.mode === 'edit' && this.form.pristine) {
+      this.snackbar.info('Nada para salvar.');
+      return;
+    }
     const raw = this.form.getRawValue() as any;
     const payload: EmpresaCreateDto = {
       ...raw,
       numeroDocumento: this.onlyDigits(raw.numeroDocumento || '')
     };
+    this.saving = true;
     if (this.mode === 'create') {
-      this.svc.create(payload).subscribe({
-        next: () => this.router.navigate(['/empresas']),
+      this.svc.create(payload).pipe(finalize(() => this.saving = false)).subscribe({
+        next: () => { this.snackbar.success('Empresa criada com sucesso.'); this.router.navigate(['/empresas']); },
         error: (err) => this.handleServerError(err)
       });
     } else if (this.mode === 'edit' && this.id != null) {
-      this.svc.update(this.id, payload).subscribe({
-        next: () => this.router.navigate(['/empresas']),
+      this.svc.update(this.id, payload).pipe(finalize(() => this.saving = false)).subscribe({
+        next: () => { this.snackbar.success('Empresa atualizada com sucesso.'); this.router.navigate(['/empresas']); },
         error: (err) => this.handleServerError(err)
       });
     }
@@ -150,11 +161,30 @@ export class EmpresaFormComponent {
         }
       });
     } else if (err?.status === 409) {
-      const detail = err?.error?.detail || 'Registro já existe com este documento.';
-      alert(detail);
+      // Conflito (duplicado). Backend envia ProblemDetail com 'errors' quando for doc duplicado.
+      const errors = err?.error?.errors;
+      if (errors && errors['numeroDocumento']) {
+        this.serverErrors = errors;
+        const ctrl = this.form.get('numeroDocumento');
+        if (ctrl) {
+          const existing = ctrl.errors || {};
+          ctrl.setErrors({ ...existing, server: true, duplicado: true });
+        }
+        this.snackbar.error('Documento já cadastrado.');
+      } else {
+        const detail = err?.error?.detail || 'Registro já existe com este documento.';
+        this.snackbar.error(detail);
+      }
     } else {
-      alert('Falha ao salvar. Tente novamente.');
+      this.snackbar.error('Falha ao salvar. Tente novamente.');
     }
+  }
+
+  // Pega a primeira mensagem do servidor para um campo (string ou string[])
+  getServerError(field: string): string | null {
+    const v = this.serverErrors?.[field];
+    if (!v) return null;
+    return Array.isArray(v) ? (v[0] || null) : v;
   }
 
   // ===== Helpers de máscara/validação CPF/CNPJ =====
@@ -243,5 +273,25 @@ export class EmpresaFormComponent {
   getDocumentoPlaceholder(): string {
     const tp = (this.form.get('tipoPessoa')?.value || 'CNPJ').toUpperCase();
     return tp === 'CPF' ? '000.000.000-00' : '00.000.000/0000-00';
+  }
+
+  // Habilita salvar quando válido e houve alteração (no modo edição)
+  get canSave(): boolean {
+    if (this.mode === 'view') return false;
+    if (this.saving) return false;
+    // Habilita quando campos obrigatórios estão preenchidos;
+    // no modo edição, exige alteração (dirty)
+    const requiredOk = this.requiredFieldsFilled();
+    if (!requiredOk) return false;
+    if (this.mode === 'edit') return this.form.dirty;
+    return true; // create
+  }
+
+  private requiredFieldsFilled(): boolean {
+    const tp = (this.form.get('tipoPessoa')?.value || '').toString().trim();
+    const docRaw = (this.form.get('numeroDocumento')?.value || '').toString();
+    const doc = this.onlyDigits(docRaw);
+    const nome = (this.form.get('nomeRazaoSocial')?.value || '').toString().trim();
+    return !!tp && !!doc && !!nome;
   }
 }
