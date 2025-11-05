@@ -131,8 +131,10 @@ export class RegisterComponent implements OnDestroy, AfterViewInit {
       return;
     }
     this.loading = true;
-    const raw = this.formRequest.getRawValue() as any;
-    const payload: RequestTokenPayload = { email: raw.email, telefone: raw.telefone };
+  const raw = this.formRequest.getRawValue() as any;
+  const tp = ((raw.tipoPessoa || 'CNPJ').toUpperCase() as 'CPF'|'CNPJ');
+  const digits = this.onlyDigits(raw.documento || '');
+  const payload: RequestTokenPayload = { email: raw.email, telefone: raw.telefone, tipoPessoa: tp, numeroDocumento: digits };
     this.auth.requestRegistrationToken(payload).subscribe({
       next: () => {
         this.snackbar.success('Enviamos um código por e-mail e SMS.');
@@ -161,11 +163,15 @@ export class RegisterComponent implements OnDestroy, AfterViewInit {
     if (this.formConfirm.invalid || this.formRequest.invalid) return;
     this.loading = true;
     const email = this.formRequest.value.email!;
+  const tp = ((this.formRequest.value.tipoPessoa || 'CNPJ').toUpperCase() as 'CPF'|'CNPJ');
+    const numeroDoc = this.onlyDigits(this.formRequest.value.documento || '');
     const payload: ConfirmRegistrationPayload = {
       email,
       nome: this.formConfirm.value.nome!,
       senha: this.formConfirm.value.senha!,
       token: this.formConfirm.value.token!,
+      tipoPessoa: tp,
+      numeroDocumento: numeroDoc,
     };
     this.auth.confirmRegistration(payload).subscribe({
       next: () => {
@@ -190,8 +196,10 @@ export class RegisterComponent implements OnDestroy, AfterViewInit {
     if (this.resendCooldown > 0 || this.loading) return;
     if (this.formRequest.invalid) return;
     this.loading = true;
-    const raw = this.formRequest.getRawValue() as any;
-    const payload: RequestTokenPayload = { email: raw.email, telefone: raw.telefone };
+  const raw = this.formRequest.getRawValue() as any;
+  const tp = ((raw.tipoPessoa || 'CNPJ').toUpperCase() as 'CPF'|'CNPJ');
+  const digits = this.onlyDigits(raw.documento || '');
+  const payload: RequestTokenPayload = { email: raw.email, telefone: raw.telefone, tipoPessoa: tp, numeroDocumento: digits };
     this.auth.requestRegistrationToken(payload).subscribe({
       next: () => {
         this.snackbar.success('Código reenviado.');

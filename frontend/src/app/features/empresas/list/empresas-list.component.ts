@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { EmpresasService, EmpresaDto } from '../empresas.service';
+import { AuthService } from '../../../core/auth.service';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 
 @Component({
@@ -13,6 +14,7 @@ import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 })
 export class EmpresasListComponent {
   private svc = inject(EmpresasService);
+  private auth = inject(AuthService);
   private router = inject(Router);
   private snackbar = inject(SnackbarService);
   empresas: EmpresaDto[] | null = null;
@@ -60,4 +62,6 @@ export class EmpresasListComponent {
     }
     return doc;
   }
+
+  get isAdmin(): boolean { return this.auth.isMaster; }
 }

@@ -23,9 +23,18 @@ public interface EmpresaService {
     /** Cria uma nova empresa a partir do payload de criação. */
     EmpresaDto criar(EmpresaCreateDto payload);
 
+    /** Cria uma nova empresa bloqueada (não permite excluir nem alterar tipo/doc). */
+    EmpresaDto criarBloqueada(EmpresaCreateDto payload);
+
     /** Atualiza uma empresa existente. Retorna vazio se não encontrada. */
     java.util.Optional<EmpresaDto> atualizar(long id, EmpresaCreateDto payload);
 
+        /** Verifica existência por tipoPessoa (CPF/CNPJ) e número de documento (apenas dígitos). */
+        boolean existsByTipoPessoaAndNumeroDocumento(String tipoPessoa, String numeroDocumentoDigits);
+
     /** Exclui por id; retorna true se existia e foi removida. */
     boolean excluirPorId(long id);
+
+    /** Exclui por id forçando a remoção (ignora bloqueios); uso restrito a ADMIN_MAIN. */
+    boolean excluirPorIdForce(long id);
 }

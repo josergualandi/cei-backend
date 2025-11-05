@@ -32,7 +32,7 @@
   <ng-template #step2>
     <p>Informe seu nome, defina uma senha e o código recebido.</p>
     <form [formGroup]="formConfirm" (ngSubmit)="onConfirm()">
-      <label>Nome</label>
+  <label>{{ (formRequest.value.tipoPessoa || 'CNPJ').toUpperCase() === 'CNPJ' ? 'Nome da empresa' : 'Nome' }}</label>
       <input type="text" formControlName="nome" required />
       <label>Senha</label>
       <input type="password" formControlName="senha" required />

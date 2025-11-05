@@ -20,6 +20,7 @@ export interface EmpresaDto {
   email?: string;
   criadoEm?: string; // Instant ISO
   atualizadoEm?: string; // Instant ISO
+  bloqueada?: boolean;
 }
 
 export interface EmpresaCreateDto {

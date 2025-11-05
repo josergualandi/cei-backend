@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmpresasService, EmpresaCreateDto, EmpresaDto } from '../empresas.service';
+import { AuthService } from '../../../core/auth.service';
 import { SnackbarService } from '../../../shared/snackbar/snackbar.service';
 import { finalize } from 'rxjs/operators';
 
@@ -20,6 +21,7 @@ export class EmpresaFormComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private svc = inject(EmpresasService);
+  private auth = inject(AuthService);
   private snackbar = inject(SnackbarService);
 
   mode: Mode = 'create';
@@ -60,8 +62,17 @@ export class EmpresaFormComponent {
             email: e.email || ''
           }, { emitEvent: false });
           this.form.updateValueAndValidity({ onlySelf: false, emitEvent: false });
-          if (this.mode === 'view') this.form.disable();
-          else this.form.enable();
+          if (this.mode === 'view') {
+            this.form.disable();
+          } else {
+            this.form.enable();
+            // Se não for ADMIN_MAIN, desabilita tipo/documento sempre.
+            // Além disso, se empresa for bloqueada, mantém bloqueado também.
+            if (!this.auth.isMaster || e.bloqueada) {
+              this.form.get('tipoPessoa')?.disable({ emitEvent: false });
+              this.form.get('numeroDocumento')?.disable({ emitEvent: false });
+            }
+          }
           this.form.markAsPristine();
         });
       } else {
