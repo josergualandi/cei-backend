@@ -27,10 +27,10 @@ public interface EmpresaService {
     EmpresaDto criarBloqueada(EmpresaCreateDto payload);
 
     /** Atualiza uma empresa existente. Retorna vazio se não encontrada. */
-    java.util.Optional<EmpresaDto> atualizar(long id, EmpresaCreateDto payload);
+    Optional<EmpresaDto> atualizar(long id, EmpresaCreateDto payload);
 
-        /** Verifica existência por tipoPessoa (CPF/CNPJ) e número de documento (apenas dígitos). */
-        boolean existsByTipoPessoaAndNumeroDocumento(String tipoPessoa, String numeroDocumentoDigits);
+    /** Verifica existência por tipoPessoa (CPF/CNPJ) e número de documento (apenas dígitos). */
+    boolean existsByTipoPessoaAndNumeroDocumento(String tipoPessoa, String numeroDocumentoDigits);
 
     /** Exclui por id; retorna true se existia e foi removida. */
     boolean excluirPorId(long id);
