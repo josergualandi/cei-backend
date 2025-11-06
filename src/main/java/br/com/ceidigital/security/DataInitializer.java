@@ -86,7 +86,10 @@ public class DataInitializer implements ApplicationRunner {
             u.setEmail(adminEmail);
             u.setSenha(passwordEncoder.encode(adminPassword));
             u.setAtivo(true);
-            u.setPerfis(Set.of(master));
+            // Use coleção mutável para evitar UnsupportedOperationException em merges JPA
+            java.util.Set<Perfil> perfis = new java.util.HashSet<>();
+            perfis.add(master);
+            u.setPerfis(perfis);
             ensureAdminEmpresa(u);
             usuarioRepository.save(u);
             log.warn("Usuário ADMIN (MASTER) criado: {} (altere a senha em produção)", adminEmail);

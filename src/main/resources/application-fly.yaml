@@ -11,3 +11,17 @@ spring:
 
 # Perfil "fly" pensado para subir barato/rápido sem Postgres gerenciado.
 # Em produção de verdade, substitua por Postgres e configure SPRING_DATASOURCE_* nas secrets do Fly.
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+debug:
+  whatsapp:
+    enabled: false

@@ -47,6 +47,16 @@ server:
   # Porta padrão para desenvolvimento. Pode ser sobrescrita por variável de ambiente SERVER_PORT
   port: ${SERVER_PORT:8081}
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
 security:
   jwt:
     # Chave secreta para assinar tokens JWT (mínimo ~32 bytes para HS256)
@@ -76,3 +86,8 @@ notification:
   whatsapp:
     # Habilita envio via WhatsApp (Twilio WhatsApp Business). Padrão: false
     enabled: ${WHATSAPP_ENABLED:false}
+
+# Debug
+debug:
+  whatsapp:
+    enabled: true
