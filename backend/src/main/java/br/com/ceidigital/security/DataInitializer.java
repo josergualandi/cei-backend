@@ -66,32 +66,31 @@ public class DataInitializer implements ApplicationRunner {
         ensurePerfil("USER", "Perfil de usuário padrão");
         ensurePerfil("ADMIN_MAIN", "Perfil admin legado com acesso total (compatibilidade)");
 
-        // Garante usuário admin com perfil MASTER
-        usuarioRepository.findByEmail(adminEmail).ifPresentOrElse(u -> {
-                    // Assegura que o usuário admin possua MASTER
-                    boolean hasMaster = u.getPerfis().stream()
-                            .anyMatch(p -> p.getNome() != null && p.getNome().equalsIgnoreCase("MASTER"));
-                    if (!hasMaster) {
-                        Set<Perfil> novos = new HashSet<>(u.getPerfis());
-                        novos.add(master);
-                        u.setPerfis(novos);
-                        usuarioRepository.save(u);
-                        log.info("Perfil MASTER adicionado ao usuário admin: {}", adminEmail);
-                    }
-                    ensureAdminEmpresa(u);
-                },
-                () -> {
-                    Usuario u = new Usuario();
-                    u.setNome("Administrador");
-                    u.setEmail(adminEmail);
-                    u.setSenha(passwordEncoder.encode(adminPassword));
-                    u.setAtivo(true);
-                    u.setPerfis(Set.of(master));
-                    ensureAdminEmpresa(u);
-                    usuarioRepository.save(u);
-                    log.warn("Usuário ADMIN (MASTER) criado: {} (altere a senha em produção)", adminEmail);
-                }
-        );
+        // Garante usuário admin com perfil MASTER (sem usar lambda, evitando captura de variáveis locais)
+        var optAdmin = usuarioRepository.findByEmail(adminEmail);
+        if (optAdmin.isPresent()) {
+            Usuario u = optAdmin.get();
+            boolean hasMaster = u.getPerfis().stream()
+                    .anyMatch(p -> p.getNome() != null && p.getNome().equalsIgnoreCase("MASTER"));
+            if (!hasMaster) {
+                Set<Perfil> novos = new HashSet<>(u.getPerfis());
+                novos.add(master);
+                u.setPerfis(novos);
+                usuarioRepository.save(u);
+                log.info("Perfil MASTER adicionado ao usuário admin: {}", adminEmail);
+            }
+            ensureAdminEmpresa(u);
+        } else {
+            Usuario u = new Usuario();
+            u.setNome("Administrador");
+            u.setEmail(adminEmail);
+            u.setSenha(passwordEncoder.encode(adminPassword));
+            u.setAtivo(true);
+            u.setPerfis(Set.of(master));
+            ensureAdminEmpresa(u);
+            usuarioRepository.save(u);
+            log.warn("Usuário ADMIN (MASTER) criado: {} (altere a senha em produção)", adminEmail);
+        }
     }
 
     private Perfil ensurePerfil(String nome, String descricao) {
@@ -105,21 +104,23 @@ public class DataInitializer implements ApplicationRunner {
 
     private void ensureAdminEmpresa(Usuario u) {
         if (u.getEmpresa() != null) return;
-        String tipo = (adminEmpresaTipo == null || adminEmpresaTipo.isBlank()) ? "CNPJ" : adminEmpresaTipo.trim().toUpperCase();
-        String doc = adminEmpresaDocumento == null ? "" : adminEmpresaDocumento.replaceAll("[^0-9]", "");
-        if (doc.isEmpty()) doc = "00000000000000";
+    String tipo = (adminEmpresaTipo == null || adminEmpresaTipo.isBlank()) ? "CNPJ" : adminEmpresaTipo.trim().toUpperCase();
+    String doc = adminEmpresaDocumento == null ? "" : adminEmpresaDocumento.replaceAll("[^0-9]", "");
+    if (doc.isEmpty()) doc = "00000000000000";
+    final String fTipo = tipo;
+    final String fDoc = doc;
 
-        Empresa emp = empresaRepository.findByTipoPessoaAndNumeroDocumento(tipo, doc)
+    Empresa emp = empresaRepository.findByTipoPessoaAndNumeroDocumento(fTipo, fDoc)
                 .orElseGet(() -> {
                     Empresa e = new Empresa();
-                    e.setTipoPessoa(tipo);
-                    e.setNumeroDocumento(doc);
+            e.setTipoPessoa(fTipo);
+            e.setNumeroDocumento(fDoc);
                     e.setNomeRazaoSocial(adminEmpresaNome == null || adminEmpresaNome.isBlank() ? "Empresa Admin" : adminEmpresaNome);
                     e.setBloqueada(true);
                     return empresaRepository.save(e);
                 });
         u.setEmpresa(emp);
         usuarioRepository.save(u);
-        log.info("Usuário admin associado à empresa padrão: {} / {}", tipo, doc);
+    log.info("Usuário admin associado à empresa padrão: {} / {}", fTipo, fDoc);
     }
 }
