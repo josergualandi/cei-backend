@@ -1,3 +1,4 @@
+# Corrigido para garantir permissão de execução no Linux
 #!/bin/sh
 # ----------------------------------------------------------------------------
 # Licensed to the Apache Software Foundation (ASF) under one
