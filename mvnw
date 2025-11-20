@@ -1,4 +1,4 @@
-[All lines converted to LF line endings]
+#!/bin/sh
 # ----------------------------------------------------------------------------
 # Maven Start Up Batch script
 #
