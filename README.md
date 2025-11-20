@@ -3,11 +3,9 @@
 API REST em Spring Boot (Java 21) com autenticação JWT, PostgreSQL (via Docker) e camadas de serviço/DTO.
 
 ## Requisitos
-- Java 21 (JDK)
-- Maven Wrapper (já incluso: `mvnw`/`mvnw.cmd`)
-- PostgreSQL em execução (via `docker-compose` na raiz do repositório)
 
-## Executar em desenvolvimento
+# Cadastro Empresarial Integrado CEI
+# Commit forçado para teste de sincronização
 ```powershell
 # No Windows PowerShell
 cd "C:\Users\José Gualandi\cei-digital\backend"
