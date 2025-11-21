@@ -20,6 +20,8 @@ spring:
       # Em produção, considere usar 'validate' e gerenciar migrações com Flyway/Liquibase
       ddl-auto: update
     show-sql: true
+---
+spring:
   config:
     activate:
       on-profile: fly
