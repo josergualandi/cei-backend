@@ -25,3 +25,7 @@ management:
 debug:
   whatsapp:
     enabled: false
+
+app:
+  cors:
+    allowed-origins: https://www.ceidigital.com.br
