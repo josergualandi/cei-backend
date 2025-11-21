@@ -3,11 +3,16 @@ FROM eclipse-temurin:21-jdk AS build
 WORKDIR /app
 
 # Copy Maven wrapper and config first (better layer caching)
+
 COPY mvnw mvnw
 RUN chmod +x mvnw
 COPY mvnw.cmd mvnw.cmd
 COPY .mvn .mvn
 COPY pom.xml pom.xml
+
+# Diagnóstico: listar arquivos e mostrar início do mvnw
+RUN ls -l /app
+RUN head -20 /app/mvnw
 
 # Pre-fetch dependencies
 RUN ./mvnw -q -B -DskipTests dependency:go-offline
