@@ -1,6 +1,10 @@
 # Configurações da aplicação CEI Digital
  # - Variáveis de conexão com banco Postgres para ambiente local
  # - JPA com ddl-auto=update para criar/atualizar o schema automaticamente em desenvolvimento
+logging:
+  level:
+    org.springframework.jdbc.datasource: DEBUG
+    org.hibernate.engine.jdbc.connections: DEBUG
 spring:
   application:
     name: CEI Digital
