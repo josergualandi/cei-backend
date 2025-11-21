@@ -10,9 +10,10 @@ COPY mvnw.cmd mvnw.cmd
 COPY .mvn .mvn
 COPY pom.xml pom.xml
 
-# Diagnóstico: listar arquivos e mostrar início do mvnw
+# Diagnóstico: listar arquivos, mostrar início e encoding do mvnw
 RUN ls -l /app
 RUN head -20 /app/mvnw
+RUN file /app/mvnw
 
 # Pre-fetch dependencies
 RUN ./mvnw -q -B -DskipTests dependency:go-offline
