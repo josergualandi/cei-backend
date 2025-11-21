@@ -19,6 +19,8 @@ spring:
     hibernate:
       # Em produção, considere usar 'validate' e gerenciar migrações com Flyway/Liquibase
       ddl-auto: update
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
   # Internacionalização e localização
