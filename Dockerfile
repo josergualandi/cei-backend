@@ -1,5 +1,5 @@
 # Multi-stage build for Spring Boot (Java 21)
-FROM eclipse-temurin:21-jdk AS build
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Copy Maven wrapper and config first (better layer caching)
@@ -7,7 +7,6 @@ WORKDIR /app
 COPY .mvn .mvn
 COPY pom.xml pom.xml
 
-# Pre-fetch dependencies usando Maven instalado
 RUN mvn -q -B -DskipTests dependency:go-offline
 
 # Copy sources and build
