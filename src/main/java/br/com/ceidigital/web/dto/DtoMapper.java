@@ -15,6 +15,22 @@ import java.util.List;
 
 /** Mapeadores simples entre entidades e DTOs. */
 public final class DtoMapper {
+    // Produto
+    public static ProdutoDto toDto(br.com.ceidigital.domain.Produto p) {
+        if (p == null) return null;
+        ProdutoDto dto = new ProdutoDto();
+        dto.setIdProduto(p.getIdProduto());
+        dto.setIdEmpresa(p.getEmpresa() != null ? p.getEmpresa().getId() : null);
+        dto.setNomeProduto(p.getNomeProduto());
+        dto.setDescricao(p.getDescricao());
+        dto.setPrecoUnitario(p.getPrecoUnitario());
+        dto.setConsignado(p.getConsignado());
+        dto.setQuantidadeEstoque(p.getQuantidadeEstoque());
+        dto.setAtivo(p.getAtivo());
+        dto.setCriadoEm(p.getCriadoEm() != null ? p.getCriadoEm().toString() : null);
+        dto.setAtualizadoEm(p.getAtualizadoEm() != null ? p.getAtualizadoEm().toString() : null);
+        return dto;
+    }
     private DtoMapper() {}
 
     // Empresa
