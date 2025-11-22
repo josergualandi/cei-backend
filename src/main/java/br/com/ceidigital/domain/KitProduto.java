@@ -11,7 +11,7 @@ public class KitProduto {
     private Long idKitProduto;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_kit", nullable = false)
+    @JoinColumn(name = "id_kit_promocional", nullable = false)
     private KitPromocional kit;
 
     @ManyToOne(fetch = FetchType.LAZY)
