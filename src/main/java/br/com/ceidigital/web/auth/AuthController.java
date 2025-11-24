@@ -15,10 +15,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
     private final UsuarioService usuarioService;
@@ -34,6 +38,8 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest body) {
+        long start = System.currentTimeMillis();
+        log.info("[LOGIN] Início do login para {}", body.email());
         // Se o usuário não existir, retornar 404 para o front encaminhar ao cadastro
         var opt = usuarioService.buscarPorEmail(body.email());
         if (opt.isEmpty()) {
@@ -42,18 +48,24 @@ public class AuthController {
             pd.setDetail("usuario.nao.cadastrado");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(pd);
         }
-        Authentication authentication = authManager.authenticate(
+        long preAuth = System.currentTimeMillis();
+        log.info("[LOGIN] Tempo até buscar usuário: {} ms", (preAuth - start));
+        Authentication authentication;
+        long authStart = System.currentTimeMillis();
+        authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(body.email(), body.senha())
         );
+        long authEnd = System.currentTimeMillis();
+        log.info("[LOGIN] Tempo de autenticação (PasswordEncoder): {} ms", (authEnd - authStart));
         // Gerar token a partir do email (username)
         String email = authentication.getName();
         String token = jwtService.generateToken(email);
+        long end = System.currentTimeMillis();
+        log.info("[LOGIN] Tempo total do login (incluindo token): {} ms", (end - start));
         long expiresIn = jwtService.extractExpiration(token).getTime() / 1000 - System.currentTimeMillis() / 1000;
-
         // Retornar roles do usuário (perfis)
-    var usuarioDto = usuarioService.buscarPorEmail(email).orElseThrow();
-    Set<String> roles = usuarioDto.perfis().stream().map(p -> p.nome()).collect(Collectors.toSet());
-
+        var usuarioDto = usuarioService.buscarPorEmail(email).orElseThrow();
+        Set<String> roles = usuarioDto.perfis().stream().map(p -> p.nome()).collect(Collectors.toSet());
         return ResponseEntity.ok(new LoginResponse("Bearer", token, expiresIn, roles));
     }
 

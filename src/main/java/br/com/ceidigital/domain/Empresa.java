@@ -73,8 +73,14 @@ public class Empresa {
     @Column(name = "atualizado_em", nullable = false)
     private Instant atualizadoEm = Instant.now();
 
+
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo = true;
+
     @Column(name = "bloqueada", nullable = false)
     private boolean bloqueada = false; // quando criada automaticamente no registro, impede excluir/alterar doc/tipo
+    public boolean isAtivo() { return ativo; }
+    public void setAtivo(boolean ativo) { this.ativo = ativo; }
 
     // Compatibilidade: aceita 'cnpj' e 'nome' (transientes) para não quebrar clientes antigos
     @Transient

@@ -1,3 +1,7 @@
+# Garante fator de custo seguro do BCrypt em produção
+security:
+  bcrypt:
+    strength: 10
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL}
@@ -29,3 +33,6 @@ debug:
 app:
   cors:
     allowed-origins: https://www.ceidigital.com.br
+
+# Compatibilidade para leitura direta de 'security.jwt.secret' em produção
+security.jwt.secret: ${JWT_SECRET}

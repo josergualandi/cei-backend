@@ -1,0 +1,7 @@
+# Configuração para testes automatizados
+security.jwt.secret: test-secret-for-jwt-123456789012345678901234567890
+security.jwt.expiration: 3600
+
+# Propriedades obrigatórias para inicialização do admin nos testes
+app.admin.email: admin@contoso.dev
+app.admin.password: Admin!234

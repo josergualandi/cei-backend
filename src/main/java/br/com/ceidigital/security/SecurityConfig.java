@@ -38,6 +38,9 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:http://localhost:4200,http://127.0.0.1:4200}")
     private String corsAllowedOrigins;
 
+    @Value("${security.bcrypt.strength:10}")
+    private int bcryptStrength;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -89,7 +92,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(bcryptStrength);
     }
 
     @Bean

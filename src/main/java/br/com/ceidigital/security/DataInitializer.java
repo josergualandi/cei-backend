@@ -116,11 +116,12 @@ public class DataInitializer implements ApplicationRunner {
     Empresa emp = empresaRepository.findByTipoPessoaAndNumeroDocumento(fTipo, fDoc)
                 .orElseGet(() -> {
                     Empresa e = new Empresa();
-            e.setTipoPessoa(fTipo);
-            e.setNumeroDocumento(fDoc);
-                    e.setNomeRazaoSocial(adminEmpresaNome == null || adminEmpresaNome.isBlank() ? "Empresa Admin" : adminEmpresaNome);
-                    e.setBloqueada(true);
-                    return empresaRepository.save(e);
+                e.setTipoPessoa(fTipo);
+                e.setNumeroDocumento(fDoc);
+                e.setNomeRazaoSocial(adminEmpresaNome == null || adminEmpresaNome.isBlank() ? "Empresa Admin" : adminEmpresaNome);
+                e.setAtivo(true);
+                e.setBloqueada(true);
+                return empresaRepository.save(e);
                 });
         u.setEmpresa(emp);
         usuarioRepository.save(u);

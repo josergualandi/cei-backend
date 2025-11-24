@@ -1,3 +1,7 @@
+# Garante fator de custo seguro do BCrypt em produção
+security:
+  bcrypt:
+    strength: 10
 spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL}
