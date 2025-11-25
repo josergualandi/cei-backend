@@ -28,6 +28,7 @@ public final class DtoMapper {
         dto.setConsignado(p.getConsignado());
         dto.setQuantidadeEstoque(p.getQuantidadeEstoque());
         dto.setAtivo(p.getAtivo());
+        dto.setCaminhoImagem(p.getCaminhoImagem());
         dto.setCriadoEm(p.getCriadoEm() != null ? p.getCriadoEm().toString() : null);
         dto.setAtualizadoEm(p.getAtualizadoEm() != null ? p.getAtualizadoEm().toString() : null);
         return dto;

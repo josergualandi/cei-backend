@@ -15,8 +15,16 @@ public class ProdutoDto {
     private Boolean consignado;
     private Integer quantidadeEstoque;
     private Boolean ativo;
+    private String caminhoImagem;
     private String criadoEm;
     private String atualizadoEm;
+        public String getCaminhoImagem() {
+            return caminhoImagem;
+        }
+
+        public void setCaminhoImagem(String caminhoImagem) {
+            this.caminhoImagem = caminhoImagem;
+        }
     public Long getIdProduto() {
         return idProduto;
     }

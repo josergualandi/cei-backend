@@ -1,3 +1,4 @@
+   
 package br.com.ceidigital.domain;
 
 import jakarta.persistence.*;
@@ -40,6 +41,12 @@ public class Produto {
 
     @Column
     private LocalDateTime atualizadoEm;
+    
+    @Column(name = "caminho_imagem")
+    private String caminhoImagem;
+    public String getCaminhoImagem() {
+        return caminhoImagem;
+    }
 
     public Long getIdProduto() {
         return idProduto;
@@ -108,5 +115,10 @@ public class Produto {
     }
     public void setAtualizadoEm(LocalDateTime atualizadoEm) {
         this.atualizadoEm = atualizadoEm;
+    }
+
+    
+    public void setCaminhoImagem(String caminhoImagem) {
+        this.caminhoImagem = caminhoImagem;
     }
 }

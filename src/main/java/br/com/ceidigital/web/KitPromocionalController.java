@@ -1,5 +1,4 @@
 package br.com.ceidigital.web;
-
 import br.com.ceidigital.domain.KitPromocional;
 import br.com.ceidigital.domain.Usuario;
 import br.com.ceidigital.repository.KitPromocionalRepository;
