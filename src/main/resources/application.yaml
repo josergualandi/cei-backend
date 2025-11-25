@@ -17,9 +17,6 @@ app:
 server:
   port: 8081
 # (jwt já está sob security acima)
-# Configurações da aplicação CEI Digital
- # - Variáveis de conexão com banco Postgres para ambiente local
- # - JPA com ddl-auto=update para criar/atualizar o schema automaticamente em desenvolvimento
 logging:
   level:
     org.springframework.jdbc.datasource: DEBUG
@@ -29,6 +26,10 @@ spring:
     name: CEI Digital
 
   datasource:
+    url: jdbc:postgresql://localhost:5432/cei_db
+    username: ceiuser
+    password: ceipass
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
