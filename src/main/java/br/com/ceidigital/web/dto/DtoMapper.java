@@ -24,6 +24,7 @@ public final class DtoMapper {
         dto.setNomeProduto(p.getNomeProduto());
         dto.setDescricao(p.getDescricao());
         dto.setPrecoUnitario(p.getPrecoUnitario());
+        dto.setPrecoCompra(p.getPrecoCompra());
         dto.setConsignado(p.getConsignado());
         dto.setQuantidadeEstoque(p.getQuantidadeEstoque());
         dto.setAtivo(p.getAtivo());

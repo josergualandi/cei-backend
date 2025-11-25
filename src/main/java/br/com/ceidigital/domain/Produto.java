@@ -23,6 +23,9 @@ public class Produto {
     @Column(precision = 10, scale = 2, nullable = false)
     private BigDecimal precoUnitario;
 
+    @Column(name = "preco_compra", precision = 10, scale = 2)
+    private BigDecimal precoCompra;
+
     @Column(nullable = false)
     private Boolean consignado;
 
@@ -58,6 +61,14 @@ public class Produto {
     }
     public String getDescricao() {
         return descricao;
+    }
+
+    public BigDecimal getPrecoCompra() {
+        return precoCompra;
+    }
+
+    public void setPrecoCompra(BigDecimal precoCompra) {
+        this.precoCompra = precoCompra;
     }
     public void setDescricao(String descricao) {
         this.descricao = descricao;

@@ -11,6 +11,7 @@ public class ProdutoDto {
     private String nomeProduto;
     private String descricao;
     private BigDecimal precoUnitario;
+    private BigDecimal precoCompra;
     private Boolean consignado;
     private Integer quantidadeEstoque;
     private Boolean ativo;
@@ -45,6 +46,14 @@ public class ProdutoDto {
     }
     public void setPrecoUnitario(BigDecimal precoUnitario) {
         this.precoUnitario = precoUnitario;
+    }
+
+    public BigDecimal getPrecoCompra() {
+        return precoCompra;
+    }
+
+    public void setPrecoCompra(BigDecimal precoCompra) {
+        this.precoCompra = precoCompra;
     }
     public Boolean getConsignado() {
         return consignado;
